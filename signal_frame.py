@@ -6,13 +6,16 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 import matplotlib.pyplot as plt
 
 class SignalFrame(ttk.Frame):
-    def __init__(self, container, signal_type = None, params_val_dict = None, file_path = None):
+    def __init__(self, container, signal_type = None, params_val_dict = None, file_path = None, operation = None, first_signal = None, second_signal = None):
         super().__init__(container)
 
 
         if file_path:
             signal_generator = SignalGenerator()
             signal_generator.read_from_file(file_path)
+        elif operation:
+            signal_generator = SignalGenerator()
+            signal_generator.generate_signal_from_two_signals(operation, first_signal, second_signal)
         else:
             app_params = {}
             for k in params_val_dict:

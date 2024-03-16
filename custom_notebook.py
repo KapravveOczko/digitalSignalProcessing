@@ -31,10 +31,10 @@ class CustomNotebook(ttk.Notebook):
 
 
     def create_operatin_on_signals_widgets(self):
-        self.oparation_frame = ttk.Frame(self)
-        self.add(self.oparation_frame, text="Operacje na sygnałach")
+        self.operation_frame = ttk.Frame(self)
+        self.add(self.operation_frame, text="Operacje na sygnałach")
 
-        operation_frame = ttk.LabelFrame(self.oparation_frame, text="Operacje na sygnałach")
+        operation_frame = ttk.LabelFrame(self.operation_frame, text="Operacje na sygnałach")
         operation_frame.pack(pady=20, padx=20, fill="both", expand=True)
 
         row_number = 0
@@ -54,14 +54,14 @@ class CustomNotebook(ttk.Notebook):
         first_tab_label = ttk.Label(operation_frame, text="Pierwszy Sygnał")
         first_tab_label.grid(column=0, row=row_number)
         self.first_tab = tk.StringVar(value="")
-        self.first_tab_menu = ttk.Combobox(operation_frame, textvariable=self.first_tab.get(), values=[])
+        self.first_tab_menu = ttk.Combobox(operation_frame, textvariable=self.first_tab, values=[])
         self.first_tab_menu.grid(column=1, row=row_number)
 
         row_number += 1
         second_tab_label = ttk.Label(operation_frame, text="Drugi Sygnał")
         second_tab_label.grid(column=0, row=row_number)
         self.second_tab = tk.StringVar(value="")
-        self.second_tab_menu = ttk.Combobox(operation_frame, textvariable=self.second_tab.get(), values=[])
+        self.second_tab_menu = ttk.Combobox(operation_frame, textvariable=self.second_tab, values=[])
         self.second_tab_menu.grid(column=1, row=row_number)
 
         row_number += 1
@@ -69,6 +69,7 @@ class CustomNotebook(ttk.Notebook):
             operation_frame,
             text = "Generuj Wykres",
             command = lambda: self.generate_and_show_plot_from_two_signals(
+                operation_types_keys[operation_types_values.index(operation.get())],
                 self.get_tab_by_name(self.first_tab.get()),
                 self.get_tab_by_name(self.second_tab.get())
             )
@@ -78,12 +79,19 @@ class CustomNotebook(ttk.Notebook):
     def get_tab_by_name(self, tab_name):
         for tab in self.tabs():
             if self.tab(tab, "text") == tab_name:
-                return tab
+                return self.nametowidget(tab)
 
 
-    def generate_and_show_plot_from_two_signals(self, first_signal, second_signal):
-        print(first_signal.signal)
-        print(second_signal)
+    def generate_and_show_plot_from_two_signals(self, operation, first_signal, second_signal):
+        first_signal = first_signal.signal
+        second_signal = second_signal.signal
+        if len(first_signal) == len(second_signal):
+            new_tab = SignalFrame(self, operation=operation, first_signal=first_signal, second_signal=second_signal)
+            self.add(new_tab, text=f"karta {self.card_number}")
+            self.card_number += 1
+            self.select(new_tab)
+            self.update_tab_list()
+
 
     def create_generate_signals_widgets(self):
         self.generate_frame = ttk.Frame(self)
@@ -177,12 +185,6 @@ class CustomNotebook(ttk.Notebook):
             self.card_number += 1
             self.select(new_tab)
             self.update_tab_list()
-
-
-    def choose_file_and_save(self, signal_generator):
-        file_path = filedialog.asksaveasfilename(defaultextension=".bin", filetypes=[("Pliki binarne", "*.bin")])
-        if file_path:
-            signal_generator.save_to_file(file_path)
 
     def render_input(self, signal_params_frame, label_text, row_number, default_value):
         label = ttk.Label(signal_params_frame, text=label_text)

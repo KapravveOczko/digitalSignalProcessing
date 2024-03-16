@@ -67,17 +67,36 @@ class SignalGenerator:
         elif self.signal_type == "S11":
             self.signal = self.generate_impulse_noise()
 
+    def generate_signal_from_two_signals(self, operation, first_signal, second_signal):
+        self.f_multiplier = len(first_signal)
+        self.time = np.linspace(0, 10, self.f_multiplier, endpoint=False)
+
+        if operation == 'D1':
+            self.signal = np.add(first_signal, second_signal)
+        elif operation == 'D2':
+            self.signal = np.subtract(first_signal, second_signal)
+        elif operation == 'D3':
+            self.signal = np.multiply(first_signal, second_signal)
+        elif operation == 'D4':
+            self.signal = np.divide(first_signal, second_signal)
+
     def plot_signal(self):
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(4, 4), subplot_kw={'frame_on': False})
         fig.subplots_adjust(hspace=0.8)
 
         ax1.plot(self.time, self.signal)
-        ax1.set_title(f'Wykres funkcji {SIGNAL_TYPES[self.signal_type]}')
+
+        if not self.signal_type:
+            signal_type_name = "2 sygnałów"
+        else:
+            signal_type_name = SIGNAL_TYPES[self.signal_type]
+
+        ax1.set_title(f'Wykres funkcji {signal_type_name}')
         ax1.set_xlabel('Czas')
         ax1.set_ylabel('Amplituda')
 
         ax2.hist(self.signal, bins=self.parameters['hist_bins'], edgecolor="black", alpha=0.75, density=True)
-        ax2.set_title(f'Histogram funkcji {SIGNAL_TYPES[self.signal_type]}')
+        ax2.set_title(f'Histogram funkcji {signal_type_name}')
         ax2.set_xlabel('Amplituda')
         ax2.set_ylabel('Częstotliwość')
 
