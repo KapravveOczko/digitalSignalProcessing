@@ -30,16 +30,15 @@ OPERATION_TYPES = {
 
 class SignalGenerator:
     def __init__(self, signal_type_var = None, parameters = None):
+        self.signal = None
         if signal_type_var and parameters:
             self.signal_type = signal_type_var
             self.parameters = parameters
-            self.signal = None
             self.f_multiplier = self.parameters['frequency']
             self.time = np.linspace(self.parameters['start_time'], self.parameters['start_time'] + self.parameters['duration'], int(self.f_multiplier))
         else:
             self.signal_type = ""
             self.parameters = {'hist_bins': 10}
-            self.signal = None
             self.f_multiplier = None
             self.time = None
 
@@ -140,6 +139,12 @@ class SignalGenerator:
                     break
                 self.signal.append(struct.unpack('d', point)[0])
 
+    def calculate_sine(self, t):
+        return math.sin(2 * math.pi * t / self.parameters['period'])
+
+    def calculate_term_position(self, t):
+        return t / self.parameters['period'] - math.floor(t / self.parameters['period'])
+
     def generate_uniform_noise(self):
         return np.random.uniform(-self.parameters['amplitude'], self.parameters['amplitude'], size=self.f_multiplier)
 
@@ -147,22 +152,38 @@ class SignalGenerator:
         return np.random.normal(0, 1, len(self.time))
 
     def generate_sinusoidal(self):
-        return [self.parameters['amplitude'] * math.sin(2 * math.pi * t / self.parameters['period']) for t in self.time]
+        return [self.parameters['amplitude'] * self.calculate_sine(t) for t in self.time]
 
     def generate_half_wave_rectified_sine(self):
-        return [max(self.parameters['amplitude'] * math.sin(2 * math.pi * t / self.parameters['period']), 0) for t in self.time]
+        return [0.5 * self.parameters['amplitude'] * (self.calculate_sine(t) + abs(self.calculate_sine(t))) for t in self.time]
 
     def generate_full_wave_rectified_sine(self):
-        return [abs(self.parameters['amplitude'] * math.sin(2 * math.pi * t / self.parameters['period'])) for t in self.time]
+        return [self.parameters['amplitude'] * abs(self.calculate_sine(t)) for t in self.time]
 
     def generate_square_wave(self):
-        return [max(self.parameters['amplitude'] * (1 if math.sin(2 * math.pi * t / self.parameters['period']) >= 0 else -1), 0) for t in self.time]
+        signal = [0] * len(self.time)
+        for i, t in enumerate(self.time):
+            if self.calculate_term_position(t) < self.parameters['fill_factor']:
+                signal[i] = self.parameters['amplitude']
+        return signal
 
     def generate_symmetric_square_wave(self):
-        return [self.parameters['amplitude'] * (1 if math.sin(math.pi * t / self.parameters['period']) >= 0 else -1) for t in self.time]
+        signal = [0] * len(self.time)
+        for i, t in enumerate(self.time):
+            if self.calculate_term_position(t) < self.parameters['fill_factor']:
+                signal[i] = self.parameters['amplitude']
+            else:
+                signal[i] = -self.parameters['amplitude']
+        return signal
 
     def generate_triangular_wave(self):
-        return [self.parameters['amplitude'] * abs(2 * ((t / self.parameters['period']) - math.floor(self.parameters['fill_factor'] + t / self.parameters['period']))) for t in self.time]
+        signal = [0] * len(self.time)
+        for i, t in enumerate(self.time):
+            if self.calculate_term_position(t) < self.parameters['fill_factor']:
+                signal[i] = self.calculate_term_position(t) / self.parameters['fill_factor'] * self.parameters['amplitude']
+            else:
+                signal[i] = (1 - (self.calculate_term_position(t) - self.parameters['fill_factor']) / (1 - self.parameters['fill_factor'])) * self.parameters['amplitude']
+        return signal
 
     def generate_unit_step(self):
         signal = [0] * len(self.time)
