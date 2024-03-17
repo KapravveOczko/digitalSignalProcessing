@@ -83,7 +83,10 @@ class SignalGenerator:
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(4, 4), subplot_kw={'frame_on': False})
         fig.subplots_adjust(hspace=0.8)
 
-        ax1.plot(self.time, self.signal)
+        if self.signal_type in ['S10', 'S11']:
+            ax1.plot(self.time, self.signal, 'o')
+        else:
+            ax1.plot(self.time, self.signal)
 
         if not self.signal_type:
             signal_type_name = "2 sygnałów"
