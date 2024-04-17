@@ -4,7 +4,7 @@ from tkinter import filedialog
 from signal_generator import SIGNAL_TYPES
 from signal_frame import SignalFrame
 
-def create_generate_signals_widgets(notebook_instance):
+def create_generate_signals_widget(notebook_instance):
     notebook_instance.generate_frame = ttk.Frame(notebook_instance)
     notebook_instance.add(notebook_instance.generate_frame, text="Generuj Wykres")
     notebook_instance.select(notebook_instance.generate_frame)
@@ -38,7 +38,7 @@ def create_generate_signals_widgets(notebook_instance):
         'frequency': "Częstotliwość",
     }
 
-    signal_type_label = notebook_instance.create_label(signal_params_frame, "Typ sygnału:", row_number)
+    notebook_instance.create_label(signal_params_frame, "Typ sygnału:", row_number)
 
     signal_types_keys = list(SIGNAL_TYPES.keys())
     signal_types_values = list(SIGNAL_TYPES.values())
@@ -98,9 +98,4 @@ def generate_and_show_plot_from_file(notebook_instance):
 
 def render_input(notebook_instance, signal_params_frame, label_text, row_number, default_value):
     notebook_instance.create_label(signal_params_frame, label_text, row_number)
-    create_entry(notebook_instance, signal_params_frame, default_value, row_number)
-
-def create_entry(notebook_instance, parent, default_value, row_number):
-    entry = ttk.Entry(parent, textvariable=default_value)
-    entry.grid(row=row_number, column=1, padx=10, sticky="w")
-    return entry
+    notebook_instance.create_entry(signal_params_frame, default_value, row_number)

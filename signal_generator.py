@@ -28,6 +28,25 @@ OPERATION_TYPES = {
     'D4': 'Dzielenie',
 }
 
+PROCESSING_OPERATIONS_TYPES = {
+    'P': 'Próbkowanie',
+    'Q': 'Kwantyzazja',
+    'R': 'Rekonstrukcja',
+}
+
+QUANTIZATION_METHOD = {
+    'Q1': 'Kwantyzacja równomierna z obcięciem',
+    'Q2': 'Kwantyzacja równomierna z zaokrągleniem',
+}
+
+RECONSTRUCTION_METHOD = {
+    'R1': 'Ekstrapolacja zerowego rzędu',
+    'R2': 'Interpolacja pierwszego rzędu',
+    'R3': 'Rekonstrukcja w oparciu o funkcję sinc',
+}
+
+
+
 class SignalGenerator:
     def __init__(self, signal_type_var = None, parameters = None):
         self.signal = None

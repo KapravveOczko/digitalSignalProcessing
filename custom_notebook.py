@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-from operation_widgets import create_operation_on_signals_widgets
-from generate_widgets import create_generate_signals_widgets
+from operation_widget import create_operation_on_signals_widget
+from generate_widget import create_generate_signals_widget
+from processing_widget import create_processing_widget
 
 class CustomNotebook(ttk.Notebook):
     """A ttk Notebook with close buttons on each tab"""
@@ -23,19 +24,26 @@ class CustomNotebook(ttk.Notebook):
 
         self.card_number = 1
 
-        create_operation_on_signals_widgets(self)
-        create_generate_signals_widgets(self)
+        create_processing_widget(self)
+        create_operation_on_signals_widget(self)
+        create_generate_signals_widget(self)
 
-    def create_label(self, paren, label_text, row_number):
-        label = ttk.Label(paren, text=label_text)
+    def create_entry(self, parent, default_value, row_number):
+        entry = ttk.Entry(parent, textvariable=default_value)
+        entry.grid(row=row_number, column=1, padx=10, sticky="w")
+        return entry
+
+    def create_label(self, parent, label_text, row_number):
+        label = ttk.Label(parent, text=label_text)
         label.grid(row=row_number, column=0, sticky="w")
         return label
 
     def update_tab_list(self):
-        self.tab_names = [self.tab(tab_id, "text") for tab_id in self.tabs()][2::]
+        self.tab_names = [self.tab(tab_id, "text") for tab_id in self.tabs()][3::]
 
         self.first_tab_menu['values'] = self.tab_names
         self.second_tab_menu['values'] = self.tab_names
+        self.signal_to_process_menu['values'] = self.tab_names
 
         if self.tab_names:
             self.set_tab_values(self.tab_names[0])
@@ -43,8 +51,10 @@ class CustomNotebook(ttk.Notebook):
     def set_tab_values(self, value):
         self.first_tab_menu.set(value)
         self.second_tab_menu.set(value)
+        self.signal_to_process_menu.set(value)
         self.first_tab.set(value)
         self.second_tab.set(value)
+        self.signal_to_process.set(value)
 
 
     def on_close_press(self, event):
