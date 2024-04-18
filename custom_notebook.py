@@ -1,12 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
+from signal_frame import SignalFrame
 from operation_widget import create_operation_on_signals_widget
 from generate_widget import create_generate_signals_widget
 from processing_widget import create_processing_widget
 
 class CustomNotebook(ttk.Notebook):
-    """A ttk Notebook with close buttons on each tab"""
-
     __initialized = False
 
     def __init__(self, *args, **kwargs):
@@ -55,6 +54,13 @@ class CustomNotebook(ttk.Notebook):
         self.first_tab.set(value)
         self.second_tab.set(value)
         self.signal_to_process.set(value)
+
+    def generate_and_show_plot(self, generator, parameters):
+        new_tab = SignalFrame(self, generator(*parameters))
+        self.add(new_tab, text=f"karta {self.card_number}")
+        self.card_number += 1
+        self.select(new_tab)
+        self.update_tab_list()
 
 
     def on_close_press(self, event):

@@ -1,31 +1,25 @@
 import tkinter as tk
+import struct
 from tkinter import ttk
 from tkinter import filedialog
-from signal_generator import SignalGenerator, SIGNAL_TYPES
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-import matplotlib.pyplot as plt
+from signal_visualizer import SignalVisualizer
 
 class SignalFrame(ttk.Frame):
-    def __init__(self, container, signal_type = None, params_val_dict = None, file_path = None, operation = None, first_signal = None, second_signal = None):
+    def __init__(self, container, generator):
         super().__init__(container)
 
+        self.generator = generator
+        self.generator.generate_signal()
 
-        if file_path:
-            signal_generator = SignalGenerator()
-            signal_generator.read_from_file(file_path)
-        elif operation:
-            signal_generator = SignalGenerator()
-            signal_generator.generate_signal_from_two_signals(operation, first_signal, second_signal)
-        else:
-            app_params = {}
-            for k in params_val_dict:
-                app_params[k] = params_val_dict[k].get()
+        self.signal = self.generator.signal
+        self.parameters = self.generator.parameters
+        self.f_multiplier = self.generator.f_multiplier
+        self.signal_type = self.generator.signal_type
 
-            signal_generator = SignalGenerator(signal_type, app_params)
-            signal_generator.generate_signal()
+        self.signal_visualization = SignalVisualizer(*generator.return_params())
 
-        self.signal = signal_generator.signal
-        fig = signal_generator.plot_signal()
+        fig = self.signal_visualization.plot_signal()
 
         canvas = FigureCanvasTkAgg(fig, master=self)
         canvas_widget = canvas.get_tk_widget()
@@ -35,10 +29,19 @@ class SignalFrame(ttk.Frame):
         toolbar.update()
         canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        save_button = ttk.Button(self, text="Zapisz sygnał", command = lambda: self.choose_file_and_save(signal_generator))
+        save_button = ttk.Button(self, text="Zapisz sygnał", command = lambda: self.choose_file_and_save())
         save_button.pack()
 
-    def choose_file_and_save(self, signal_generator):
+    def choose_file_and_save(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".bin", filetypes=[("Pliki binarne", "*.bin")])
         if file_path:
-            signal_generator.save_to_file(file_path)
+            self.save_to_file(file_path)
+
+    def save_to_file(self, path):
+        with open(path, 'wb') as file:
+            file.write(struct.pack('d', self.parameters['start_time']))
+            file.write(struct.pack('d', self.parameters['duration']))
+            file.write(struct.pack('d', self.f_multiplier))
+            file.write(struct.pack('d', int(self.signal_type[1::])))
+            for point in self.signal:
+                file.write(struct.pack('d', point))

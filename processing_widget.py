@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from signal_generator import PROCESSING_OPERATIONS_TYPES, QUANTIZATION_METHOD, RECONSTRUCTION_METHOD
+from signal_processer import PROCESSING_OPERATIONS_TYPES, QUANTIZATION_METHOD, RECONSTRUCTION_METHOD
 from signal_frame import SignalFrame
 
 def create_processing_widget(notebook_instance):

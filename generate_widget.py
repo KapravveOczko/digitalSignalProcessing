@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from signal_generator import SIGNAL_TYPES
-from signal_frame import SignalFrame
+from signal_generator import SignalGenerator
+from signal_from_file_generator import SignalFromFileGenerator
 
 def create_generate_signals_widget(notebook_instance):
     notebook_instance.generate_frame = ttk.Frame(notebook_instance)
@@ -64,7 +65,7 @@ def create_generate_signals_widget(notebook_instance):
     generate_button = ttk.Button(
         signal_params_frame,
         text = "Generuj Wykres",
-        command = lambda: generate_and_show_plot(
+        command = lambda: generate_and_show_plot_from_form(
             notebook_instance,
             signal_types_keys[signal_types_values.index(signal_type_var.get())],
             params_val_dict
@@ -79,22 +80,13 @@ def create_generate_signals_widget(notebook_instance):
     )
     read_button.grid(row=row_number, column=1, pady=10)
 
-def generate_and_show_plot(notebook_instance, signal_type, params_val_dict):
-    new_tab = SignalFrame(notebook_instance, signal_type, params_val_dict)
-    notebook_instance.add(new_tab, text=f"karta {notebook_instance.card_number}")
-    notebook_instance.card_number += 1
-    notebook_instance.select(new_tab)
-
-    notebook_instance.update_tab_list()
+def generate_and_show_plot_from_form(notebook_instance, signal_type, params_val_dict):
+    notebook_instance.generate_and_show_plot(SignalGenerator, [signal_type, params_val_dict])
 
 def generate_and_show_plot_from_file(notebook_instance):
     file_path = filedialog.askopenfilename(defaultextension=".bin", filetypes=[("Pliki binarne", "*.bin")])
     if file_path:
-        new_tab = SignalFrame(notebook_instance, file_path=file_path)
-        notebook_instance.add(new_tab, text=f"karta {notebook_instance.card_number}")
-        notebook_instance.card_number += 1
-        notebook_instance.select(new_tab)
-        notebook_instance.update_tab_list()
+        notebook_instance.generate_and_show_plot(SignalFromFileGenerator, [file_path])
 
 def render_input(notebook_instance, signal_params_frame, label_text, row_number, default_value):
     notebook_instance.create_label(signal_params_frame, label_text, row_number)

@@ -28,40 +28,25 @@ OPERATION_TYPES = {
     'D4': 'Dzielenie',
 }
 
-PROCESSING_OPERATIONS_TYPES = {
-    'P': 'Próbkowanie',
-    'Q': 'Kwantyzazja',
-    'R': 'Rekonstrukcja',
-}
-
-QUANTIZATION_METHOD = {
-    'Q1': 'Kwantyzacja równomierna z obcięciem',
-    'Q2': 'Kwantyzacja równomierna z zaokrągleniem',
-}
-
-RECONSTRUCTION_METHOD = {
-    'R1': 'Ekstrapolacja zerowego rzędu',
-    'R2': 'Interpolacja pierwszego rzędu',
-    'R3': 'Rekonstrukcja w oparciu o funkcję sinc',
-}
-
-
-
 class SignalGenerator:
     def __init__(self, signal_type_var = None, parameters = None):
+        self.parameters = {}
+        for k in parameters:
+            self.parameters[k] = parameters[k].get()
+
         self.signal = None
-        if signal_type_var and parameters:
-            self.signal_type = signal_type_var
-            self.parameters = parameters
-            self.f_multiplier = self.parameters['frequency']
-            self.time = np.linspace(self.parameters['start_time'], self.parameters['start_time'] + self.parameters['duration'], int(self.f_multiplier))
-        else:
-            self.signal_type = ""
-            self.parameters = {'hist_bins': 10}
-            self.f_multiplier = None
-            self.time = None
+        self.signal_type = signal_type_var
+        self.only_single_points = False
+        self.hist_bins = self.parameters['hist_bins']
+        self.amplitude = self.parameters['amplitude']
+        self.f_multiplier = self.parameters['frequency']
+        self.time = np.linspace(self.parameters['start_time'], self.parameters['start_time'] + self.parameters['duration'], int(self.f_multiplier))
+
+    def return_params(self):
+        return self.signal, self.time, self.hist_bins, self.signal_name, self.only_single_points
 
     def generate_signal(self):
+        self.signal_name = SIGNAL_TYPES[self.signal_type]
         if self.signal_type == "S1":
             self.signal = self.generate_uniform_noise()
         elif self.signal_type == "S2":
@@ -81,62 +66,11 @@ class SignalGenerator:
         elif self.signal_type == "S9":
             self.signal = self.generate_unit_step()
         elif self.signal_type == "S10":
+            self.only_single_points = True
             self.signal = self.generate_unit_impulse()
         elif self.signal_type == "S11":
+            self.only_single_points = True
             self.signal = self.generate_impulse_noise()
-
-    def generate_signal_from_two_signals(self, operation, first_signal, second_signal):
-        self.f_multiplier = len(first_signal)
-        self.time = np.linspace(0, 10, self.f_multiplier, endpoint=False)
-
-        if operation == 'D1':
-            self.signal = np.add(first_signal, second_signal)
-        elif operation == 'D2':
-            self.signal = np.subtract(first_signal, second_signal)
-        elif operation == 'D3':
-            self.signal = np.multiply(first_signal, second_signal)
-        elif operation == 'D4':
-            self.signal = np.divide(first_signal, second_signal)
-
-    def plot_signal(self):
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(4, 4), subplot_kw={'frame_on': False})
-        fig.subplots_adjust(hspace=0.8)
-
-        if self.signal_type in ['S10', 'S11']:
-            ax1.plot(self.time, self.signal, 'o')
-        else:
-            ax1.plot(self.time, self.signal)
-
-        if not self.signal_type:
-            signal_type_name = "2 sygnałów"
-        else:
-            signal_type_name = SIGNAL_TYPES[self.signal_type]
-
-        ax1.set_title(f'Wykres funkcji {signal_type_name}')
-        ax1.set_xlabel('Czas')
-        ax1.set_ylabel('Amplituda')
-
-        ax2.hist(self.signal, bins=self.parameters['hist_bins'], edgecolor="black", alpha=0.75, density=True)
-        ax2.set_title(f'Histogram funkcji {signal_type_name}')
-        ax2.set_xlabel('Amplituda')
-        ax2.set_ylabel('Częstotliwość')
-
-        mean_value, abs_mean_value, rms_value, variance, power = self.calculate_statistics(self.signal)
-        stats_text = f"Wartość rednia sygnału: {mean_value:.4f}\nWartość średnia bezwzględna sygnału: {abs_mean_value:.4f}\nWartość skuteczna sygnału: {rms_value:.4f}\nWariancja sygnału: {variance:.4f}\nMoc średnia sygnału: {power:.4f}"
-
-        ax3.text(0.3, 0.5, stats_text, ha='left', va="center", fontsize=12, transform=ax3.transAxes)
-        ax3.axis('off')
-
-        return fig
-
-    def calculate_statistics(self, signal):
-        N = len(signal)
-        mean_value = sum(signal) / N
-        abs_mean_value = sum(abs(x) for x in signal) / N
-        rms_value = (sum(x**2 for x in signal) / N)**0.5
-        variance = sum((x - mean_value)**2 for x in signal) / N
-        power = sum(x**2 for x in signal) / N
-        return mean_value, abs_mean_value, rms_value, variance, power
 
     def save_to_file(self, path):
         with open(path, 'wb') as file:
@@ -146,20 +80,6 @@ class SignalGenerator:
             file.write(struct.pack('d', int(self.signal_type[1::])))
             for point in self.signal:
                 file.write(struct.pack('d', point))
-
-    def read_from_file(self, path):
-        with open(path, 'rb') as file:
-            self.signal = []
-            self.parameters['start_time'] = struct.unpack('d', file.read(8))[0]
-            self.parameters['duration'] = struct.unpack('d', file.read(8))[0]
-            self.f_multiplier = struct.unpack('d', file.read(8))[0]
-            self.signal_type = 'S' + str(int(struct.unpack('d', file.read(8))[0]))
-            self.time = np.linspace(self.parameters['start_time'], self.parameters['start_time'] + self.parameters['duration'], int(self.f_multiplier), endpoint=False)
-            while True:
-                point = file.read(8)
-                if not point:
-                    break
-                self.signal.append(struct.unpack('d', point)[0])
 
     def calculate_sine(self, t):
         return math.sin(2 * math.pi * t / self.parameters['period'])

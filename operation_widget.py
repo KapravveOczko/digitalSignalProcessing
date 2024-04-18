@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from signal_generator import OPERATION_TYPES
-from signal_frame import SignalFrame
+from two_signal_operation_generator import TwoSignalOperationGenerator
+
 
 def create_operation_on_signals_widget(notebook_instance):
     notebook_instance.operation_frame = ttk.Frame(notebook_instance)
@@ -55,11 +56,5 @@ def get_tab_by_name(notebook_instance, tab_name):
 
 
 def generate_and_show_plot_from_two_signals(notebook_instance, operation, first_signal, second_signal):
-    first_signal = first_signal.signal
-    second_signal = second_signal.signal
-    if len(first_signal) == len(second_signal):
-        new_tab = SignalFrame(notebook_instance, operation=operation, first_signal=first_signal, second_signal=second_signal)
-        notebook_instance.add(new_tab, text=f"karta {notebook_instance.card_number}")
-        notebook_instance.card_number += 1
-        notebook_instance.select(new_tab)
-        notebook_instance.update_tab_list()
+    if len(first_signal.signal) == len(second_signal.signal):
+        notebook_instance.generate_and_show_plot(TwoSignalOperationGenerator, [operation, first_signal, second_signal])
