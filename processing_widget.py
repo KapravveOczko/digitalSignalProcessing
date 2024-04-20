@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from signal_processer import PROCESSING_OPERATIONS_TYPES, QUANTIZATION_METHOD, RECONSTRUCTION_METHOD
-from signal_frame import SignalFrame
+from signal_processer import SignalProcesser, PROCESSING_OPERATIONS_TYPES, QUANTIZATION_METHOD, RECONSTRUCTION_METHOD
 
 def create_processing_widget(notebook_instance):
     notebook_instance.processing_frame = ttk.Frame(notebook_instance)
@@ -13,7 +12,6 @@ def create_processing_widget(notebook_instance):
     params_val_dict = {
         'sampling_rate': tk.IntVar(value=10),
         'quantization_level': tk.IntVar(value=10),
-        'sinc_parameter': tk.IntVar(value=1),
         'quantization_method': tk.StringVar(value=""),
         'reconstruction_method': tk.StringVar(value=""),
     }
@@ -29,7 +27,7 @@ def create_processing_widget(notebook_instance):
     processing_operation_menu.grid(column=1, row=row_number, padx=10, sticky="w")
 
     row_number += 1
-    notebook_instance.tab_names = [notebook_instance.tab(tab_id, "text") for tab_id in notebook_instance.tabs()[3::]]
+    notebook_instance.tab_names = [notebook_instance.tab(tab_id, "text") for tab_id in notebook_instance.tabs()[notebook_instance.stable_card_number::]]
 
     notebook_instance.create_label(processing_signal_frame, "Wybierz Sygnał", row_number)
     notebook_instance.signal_to_process = tk.StringVar(value="")
@@ -58,9 +56,6 @@ def create_processing_widget(notebook_instance):
     quantization_level_label = notebook_instance.create_label(processing_signal_frame, "Poziom kwantyzacji:", row_number)
     quantization_level_entry = notebook_instance.create_entry(processing_signal_frame, params_val_dict['quantization_level'], row_number)
 
-    sinc_parameter_label = notebook_instance.create_label(processing_signal_frame, "Parametr sinc:", row_number)
-    sinc_parameter_entry = notebook_instance.create_entry(processing_signal_frame, params_val_dict['sinc_parameter'], row_number)
-
     all_options_dict = {
         'P': [
             sampling_rate_label,
@@ -75,8 +70,6 @@ def create_processing_widget(notebook_instance):
         'R': [
             r_operation_label,
             r_operation_menu,
-            sinc_parameter_label,
-            sinc_parameter_entry,
         ],
     }
 
@@ -89,7 +82,7 @@ def create_processing_widget(notebook_instance):
         command = lambda: generate_and_show_plot_after_processing(
             notebook_instance,
             processing_operation_types_keys[processing_operation_types_values.index(processing_operation.get())],
-            get_tab_by_name(notebook_instance, notebook_instance.signal_to_process.get()),
+            notebook_instance.get_tab_by_name(notebook_instance.signal_to_process.get()),
             params_val_dict
         )
     )
@@ -110,12 +103,6 @@ def update_extra_fields(operation, all_options_dict):
                         option.grid_remove()
             break
 
-def get_tab_by_name(notebook_instance, tab_name):
-    for tab in notebook_instance.tabs():
-        if notebook_instance.tab(tab, "text") == tab_name:
-            return notebook_instance.nametowidget(tab)
-
-
 def generate_and_show_plot_after_processing(notebook_instance, operation, signal, params_val_dict):
     quantization_method_keys = list(QUANTIZATION_METHOD.keys())
     quantization_method_values = list(QUANTIZATION_METHOD.values())
@@ -126,9 +113,15 @@ def generate_and_show_plot_after_processing(notebook_instance, operation, signal
         'sampling_rate': params_val_dict['sampling_rate'].get(),
         'quantization_level': params_val_dict['quantization_level'].get(),
         'quantization_method': quantization_method_keys[quantization_method_values.index(params_val_dict['quantization_method'].get())],
-        'sinc_parameter': params_val_dict['sinc_parameter'].get(),
         'reconstruction_method': reconstruction_method_keys[reconstruction_method_values.index(params_val_dict['reconstruction_method'].get())],
-        'amplitude': signal.amplitude,
-        'signal': signal.signal,
+        'start_time': signal.parameters['start_time'],
+        'duration': signal.parameters['duration'],
+        'original_signal': signal.original_signal,
+        'original_time': signal.original_time,
         'time': signal.time,
     }
+
+    new_tab = notebook_instance.generate_and_show_plot(SignalProcesser, [operation, signal.signal, params])
+    if new_tab.original_signal is None:
+        new_tab.original_signal = signal.signal
+        new_tab.original_time = signal.time

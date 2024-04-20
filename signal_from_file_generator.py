@@ -5,6 +5,7 @@ from signal_generator import SIGNAL_TYPES
 class SignalFromFileGenerator:
     def __init__(self, path):
         self.path = path
+        self.original_signal = None
         self.hist_bins = 10
         self.parameters = {}
 

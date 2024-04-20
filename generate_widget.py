@@ -15,9 +15,9 @@ def create_generate_signals_widget(notebook_instance):
     row_number = 0
 
     params_val_dict = {
-        'amplitude': tk.DoubleVar(value=10.0),
+        'amplitude': tk.DoubleVar(value=1.0),
         'start_time': tk.DoubleVar(value=0.0),
-        'duration': tk.DoubleVar(value=10.0),
+        'duration': tk.DoubleVar(value=5.0),
         'period': tk.DoubleVar(value=1.0),
         'fill_factor': tk.DoubleVar(value=0.5),
         'probability': tk.DoubleVar(value=0.2),
@@ -44,7 +44,7 @@ def create_generate_signals_widget(notebook_instance):
     signal_types_keys = list(SIGNAL_TYPES.keys())
     signal_types_values = list(SIGNAL_TYPES.values())
 
-    signal_type_var = tk.StringVar(value=signal_types_values[0])
+    signal_type_var = tk.StringVar(value=signal_types_values[2])
 
     signal_type_menu = ttk.Combobox(signal_params_frame, textvariable=signal_type_var, values=signal_types_values, width=50)
     signal_type_menu.grid(row=row_number, column=1, padx=5, sticky="w")

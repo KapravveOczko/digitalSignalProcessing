@@ -35,6 +35,7 @@ class SignalGenerator:
             self.parameters[k] = parameters[k].get()
 
         self.signal = None
+        self.original_signal = None
         self.signal_type = signal_type_var
         self.only_single_points = False
         self.hist_bins = self.parameters['hist_bins']

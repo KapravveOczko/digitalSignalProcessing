@@ -4,6 +4,7 @@ from signal_frame import SignalFrame
 from operation_widget import create_operation_on_signals_widget
 from generate_widget import create_generate_signals_widget
 from processing_widget import create_processing_widget
+from compare_signals_widget import create_compare_signals_widget
 
 class CustomNotebook(ttk.Notebook):
     __initialized = False
@@ -22,10 +23,13 @@ class CustomNotebook(ttk.Notebook):
         self.bind("<ButtonRelease-1>", self.on_close_release)
 
         self.card_number = 1
+        self.stable_card_number = 4
 
+        create_compare_signals_widget(self)
         create_processing_widget(self)
         create_operation_on_signals_widget(self)
         create_generate_signals_widget(self)
+
 
     def create_entry(self, parent, default_value, row_number):
         entry = ttk.Entry(parent, textvariable=default_value)
@@ -37,23 +41,37 @@ class CustomNotebook(ttk.Notebook):
         label.grid(row=row_number, column=0, sticky="w")
         return label
 
+    def get_tab_by_name(self, tab_name):
+        for tab in self.tabs():
+            if self.tab(tab, "text") == tab_name:
+                return self.nametowidget(tab)
+
     def update_tab_list(self):
-        self.tab_names = [self.tab(tab_id, "text") for tab_id in self.tabs()][3::]
+        self.tab_names = [self.tab(tab_id, "text") for tab_id in self.tabs()][self.stable_card_number::]
 
         self.first_tab_menu['values'] = self.tab_names
+        self.first_compare_tab_menu['values'] = self.tab_names
         self.second_tab_menu['values'] = self.tab_names
+        self.second_compare_tab_menu['values'] = self.tab_names
         self.signal_to_process_menu['values'] = self.tab_names
 
         if self.tab_names:
             self.set_tab_values(self.tab_names[0])
+        else:
+            self.set_tab_values("")
 
     def set_tab_values(self, value):
-        self.first_tab_menu.set(value)
-        self.second_tab_menu.set(value)
-        self.signal_to_process_menu.set(value)
-        self.first_tab.set(value)
-        self.second_tab.set(value)
-        self.signal_to_process.set(value)
+        pass
+        # self.first_tab_menu.set(value)
+        # self.first_tab_menu.set(value)
+        # self.second_compare_tab_menu.set(value)
+        # self.second_compare_tab_menu.set(value)
+        # self.signal_to_process_menu.set(value)
+        # self.first_tab.set(value)
+        # self.first_tab.set(value)
+        # self.second_compare_tab.set(value)
+        # self.second_compare_tab.set(value)
+        # self.signal_to_process.set(value)
 
     def generate_and_show_plot(self, generator, parameters):
         new_tab = SignalFrame(self, generator(*parameters))
@@ -61,6 +79,7 @@ class CustomNotebook(ttk.Notebook):
         self.card_number += 1
         self.select(new_tab)
         self.update_tab_list()
+        return new_tab
 
 
     def on_close_press(self, event):
@@ -91,6 +110,7 @@ class CustomNotebook(ttk.Notebook):
 
         self.state(["!pressed"])
         self._active = None
+        self.update_tab_list()
 
     def __initialize_custom_style(self):
         style = ttk.Style()

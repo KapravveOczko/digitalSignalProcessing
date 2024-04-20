@@ -43,17 +43,11 @@ def create_operation_on_signals_widget(notebook_instance):
         command = lambda: generate_and_show_plot_from_two_signals(
             notebook_instance,
             operation_types_keys[operation_types_values.index(operation.get())],
-            get_tab_by_name(notebook_instance, notebook_instance.first_tab.get()),
-            get_tab_by_name(notebook_instance, notebook_instance.second_tab.get())
+            notebook_instance.get_tab_by_name(notebook_instance.first_tab.get()),
+            notebook_instance.get_tab_by_name(notebook_instance.second_tab.get())
         )
     )
     generate_button.grid(column=1, row=row_number)
-
-def get_tab_by_name(notebook_instance, tab_name):
-    for tab in notebook_instance.tabs():
-        if notebook_instance.tab(tab, "text") == tab_name:
-            return notebook_instance.nametowidget(tab)
-
 
 def generate_and_show_plot_from_two_signals(notebook_instance, operation, first_signal, second_signal):
     if len(first_signal.signal) == len(second_signal.signal):

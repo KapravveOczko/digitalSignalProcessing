@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from signal_visualizer import SignalVisualizer
+from signal_comperator import SignalComperator
 
 class SignalFrame(ttk.Frame):
     def __init__(self, container, generator):
@@ -13,9 +14,16 @@ class SignalFrame(ttk.Frame):
         self.generator.generate_signal()
 
         self.signal = self.generator.signal
+        if self.generator.original_signal is not None:
+            self.original_signal = self.generator.original_signal
+            self.original_time = self.generator.original_time
+        else:
+            self.original_signal = None
+            self.original_time = None
         self.parameters = self.generator.parameters
         self.f_multiplier = self.generator.f_multiplier
         self.signal_type = self.generator.signal_type
+        self.time = self.generator.time
 
         self.signal_visualization = SignalVisualizer(*generator.return_params())
 
