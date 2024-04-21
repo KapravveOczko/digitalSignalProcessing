@@ -1,9 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from signal_generator import SIGNAL_TYPES
-from signal_generator import SignalGenerator
-from signal_from_file_generator import SignalFromFileGenerator
+from generators.signal_generator import SignalGenerator, SIGNAL_TYPES
+from generators.signal_from_file_generator import SignalFromFileGenerator
 
 def create_generate_signals_widget(notebook_instance):
     notebook_instance.generate_frame = ttk.Frame(notebook_instance)

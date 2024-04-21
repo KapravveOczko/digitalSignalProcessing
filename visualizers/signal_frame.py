@@ -3,8 +3,7 @@ import struct
 from tkinter import ttk
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from signal_visualizer import SignalVisualizer
-from signal_comperator import SignalComperator
+from visualizers.signal_visualizer import SignalVisualizer
 
 class SignalFrame(ttk.Frame):
     def __init__(self, container, generator):

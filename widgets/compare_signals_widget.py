@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from signal_comperator import SignalComperator
+from visualizers.signal_comperator import SignalComperator
 
 def create_compare_signals_widget(notebook_instance):
     notebook_instance.compare_signals_frame = ttk.Frame(notebook_instance)

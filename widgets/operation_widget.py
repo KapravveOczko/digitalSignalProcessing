@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from signal_generator import OPERATION_TYPES
-from two_signal_operation_generator import TwoSignalOperationGenerator
+from generators.two_signal_operation_generator import TwoSignalOperationGenerator, OPERATION_TYPES
 
 
 def create_operation_on_signals_widget(notebook_instance):

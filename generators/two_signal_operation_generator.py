@@ -1,11 +1,19 @@
 import numpy as np
 
+OPERATION_TYPES = {
+    'D1': 'Dodawanie',
+    'D2': 'Odejmowanie',
+    'D3': 'Mnożenie',
+    'D4': 'Dzielenie',
+}
+
 class TwoSignalOperationGenerator:
     def __init__(self, operation, first_signal, second_signal):
         self.operation = operation
         self.first_signal = first_signal.signal
         self.second_signal = second_signal.signal
         self.signal = None
+        self.original_signal = None
         self.f_multiplier = len(self.first_signal)
         self.time = np.linspace(0, 10, self.f_multiplier, endpoint=False)
         self.parameters = first_signal.parameters

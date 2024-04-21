@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
-from signal_frame import SignalFrame
-from operation_widget import create_operation_on_signals_widget
-from generate_widget import create_generate_signals_widget
-from processing_widget import create_processing_widget
-from compare_signals_widget import create_compare_signals_widget
+from visualizers.signal_frame import SignalFrame
+from widgets.operation_widget import create_operation_on_signals_widget
+from widgets.generate_widget import create_generate_signals_widget
+from widgets.processing_widget import create_processing_widget
+from widgets.compare_signals_widget import create_compare_signals_widget
 
 class CustomNotebook(ttk.Notebook):
     __initialized = False

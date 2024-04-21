@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from signal_processer import SignalProcesser, PROCESSING_OPERATIONS_TYPES, QUANTIZATION_METHOD, RECONSTRUCTION_METHOD
+from generators.signal_processer_generator import SignalProcesser, PROCESSING_OPERATIONS_TYPES, QUANTIZATION_METHOD, RECONSTRUCTION_METHOD
 
 def create_processing_widget(notebook_instance):
     notebook_instance.processing_frame = ttk.Frame(notebook_instance)
@@ -11,7 +11,7 @@ def create_processing_widget(notebook_instance):
 
     params_val_dict = {
         'sampling_rate': tk.IntVar(value=10),
-        'quantization_level': tk.IntVar(value=10),
+        'quantization_level': tk.IntVar(value=1),
         'quantization_method': tk.StringVar(value=""),
         'reconstruction_method': tk.StringVar(value=""),
     }

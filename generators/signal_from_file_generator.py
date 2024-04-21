@@ -1,6 +1,6 @@
 import struct
 import numpy as np
-from signal_generator import SIGNAL_TYPES
+from generators.signal_generator import SIGNAL_TYPES
 
 class SignalFromFileGenerator:
     def __init__(self, path):

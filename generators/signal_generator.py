@@ -1,11 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import filedialog
 import numpy as np
-import matplotlib.pyplot as plt
 import random
 import math
-import struct
 
 SIGNAL_TYPES = {
     "S1": "szum o rozkładzie jednostajnym",
@@ -19,13 +16,6 @@ SIGNAL_TYPES = {
     "S9": "skok jednostkowy",
     "S10": "impuls jednostkowy",
     "S11": "szum impulsowy",
-}
-
-OPERATION_TYPES = {
-    'D1': 'Dodawanie',
-    'D2': 'Odejmowanie',
-    'D3': 'Mnożenie',
-    'D4': 'Dzielenie',
 }
 
 class SignalGenerator:
@@ -72,15 +62,6 @@ class SignalGenerator:
         elif self.signal_type == "S11":
             self.only_single_points = True
             self.signal = self.generate_impulse_noise()
-
-    def save_to_file(self, path):
-        with open(path, 'wb') as file:
-            file.write(struct.pack('d', self.parameters['start_time']))
-            file.write(struct.pack('d', self.parameters['duration']))
-            file.write(struct.pack('d', self.f_multiplier))
-            file.write(struct.pack('d', int(self.signal_type[1::])))
-            for point in self.signal:
-                file.write(struct.pack('d', point))
 
     def calculate_sine(self, t):
         return math.sin(2 * math.pi * t / self.parameters['period'])
