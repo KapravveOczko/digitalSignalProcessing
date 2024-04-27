@@ -55,24 +55,6 @@ class CustomNotebook(ttk.Notebook):
         self.second_compare_tab_menu['values'] = self.tab_names
         self.signal_to_process_menu['values'] = self.tab_names
 
-        if self.tab_names:
-            self.set_tab_values(self.tab_names[0])
-        else:
-            self.set_tab_values("")
-
-    def set_tab_values(self, value):
-        pass
-        # self.first_tab_menu.set(value)
-        # self.first_tab_menu.set(value)
-        # self.second_compare_tab_menu.set(value)
-        # self.second_compare_tab_menu.set(value)
-        # self.signal_to_process_menu.set(value)
-        # self.first_tab.set(value)
-        # self.first_tab.set(value)
-        # self.second_compare_tab.set(value)
-        # self.second_compare_tab.set(value)
-        # self.signal_to_process.set(value)
-
     def generate_and_show_plot(self, generator, parameters):
         new_tab = SignalFrame(self, generator(*parameters))
         self.add(new_tab, text=f"karta {self.card_number}")

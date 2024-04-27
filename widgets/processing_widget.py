@@ -14,6 +14,7 @@ def create_processing_widget(notebook_instance):
         'quantization_level': tk.IntVar(value=1),
         'quantization_method': tk.StringVar(value=""),
         'reconstruction_method': tk.StringVar(value=""),
+        'sinc_parameter': tk.DoubleVar(value=1.0),
     }
 
     row_number = 0
@@ -56,6 +57,9 @@ def create_processing_widget(notebook_instance):
     quantization_level_label = notebook_instance.create_label(processing_signal_frame, "Poziom kwantyzacji:", row_number)
     quantization_level_entry = notebook_instance.create_entry(processing_signal_frame, params_val_dict['quantization_level'], row_number)
 
+    sinc_parameter_label = notebook_instance.create_label(processing_signal_frame, "paramert sinc:", row_number)
+    sinc_parameter_entry = notebook_instance.create_entry(processing_signal_frame, params_val_dict['sinc_parameter'], row_number)
+
     all_options_dict = {
         'P': [
             sampling_rate_label,
@@ -70,6 +74,8 @@ def create_processing_widget(notebook_instance):
         'R': [
             r_operation_label,
             r_operation_menu,
+            sinc_parameter_label,
+            sinc_parameter_entry,
         ],
     }
 
@@ -114,6 +120,7 @@ def generate_and_show_plot_after_processing(notebook_instance, operation, signal
         'quantization_level': params_val_dict['quantization_level'].get(),
         'quantization_method': quantization_method_keys[quantization_method_values.index(params_val_dict['quantization_method'].get())],
         'reconstruction_method': reconstruction_method_keys[reconstruction_method_values.index(params_val_dict['reconstruction_method'].get())],
+        'sinc_parameter': params_val_dict['sinc_parameter'].get(),
         'start_time': signal.parameters['start_time'],
         'duration': signal.parameters['duration'],
         'original_signal': signal.original_signal,

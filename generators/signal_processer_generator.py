@@ -26,6 +26,7 @@ class SignalProcesser:
         self.processed_time = self.parameters['time']
         self.original_signal = self.parameters['original_signal']
         self.original_time = self.parameters['original_time']
+        self.sinc_parameter = self.parameters['sinc_parameter']
         self.f_multiplier = len(signal)
         self.number_of_samples = len(signal)
         if self.original_signal is not None:
@@ -109,7 +110,7 @@ class SignalProcesser:
         reconstructed_signal = [0] * self.f_multiplier
         for i in range(len(reconstructed_signal)):
             t = i * len(self.time) / self.f_multiplier
-            reconstructed_signal[i] = sum(self.processed_signal[j] * np.sinc(t - j) for j in range(len(self.processed_signal)))
+            reconstructed_signal[i] = sum(self.processed_signal[j] * np.sinc(self.sinc_parameter * (t - j)) for j in range(len(self.processed_signal)))
         return reconstructed_signal
 
     def return_params(self):

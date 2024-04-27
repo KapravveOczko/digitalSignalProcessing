@@ -28,7 +28,7 @@ class SignalVisualizer:
         ax2.set_ylabel('Częstotliwość')
 
         mean_value, abs_mean_value, rms_value, variance, power = self.calculate_statistics()
-        stats_text = f"Wartość rednia sygnału: {mean_value:.4f}\nWartość średnia bezwzględna sygnału: {abs_mean_value:.4f}\nWartość skuteczna sygnału: {rms_value:.4f}\nWariancja sygnału: {variance:.4f}\nMoc średnia sygnału: {power:.4f}"
+        stats_text = f"Wartość średnia sygnału: {mean_value:.4f}\nWartość średnia bezwzględna sygnału: {abs_mean_value:.4f}\nWartość skuteczna sygnału: {rms_value:.4f}\nWariancja sygnału: {variance:.4f}\nMoc średnia sygnału: {power:.4f}"
 
         ax3.text(0.3, 0.5, stats_text, ha='left', va="center", fontsize=12, transform=ax3.transAxes)
         ax3.axis('off')
