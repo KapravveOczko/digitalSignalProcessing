@@ -30,7 +30,7 @@ def create_generate_signals_widget(notebook_instance):
         'amplitude': "Amplituda:",
         'start_time': "Czas początkowy:",
         'duration': "Czas trwania:",
-        'period': "Okres podstawy:",
+        'period': "Okres podstawowy:",
         'fill_factor': "Współczynnik wypełnienia:",
         'probability': "Prawdopodobieństwo:",
         'jump_number': "Numer próbki skoku:",

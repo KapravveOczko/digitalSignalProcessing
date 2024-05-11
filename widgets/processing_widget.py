@@ -14,7 +14,7 @@ def create_processing_widget(notebook_instance):
         'quantization_level': tk.IntVar(value=1),
         'quantization_method': tk.StringVar(value=""),
         'reconstruction_method': tk.StringVar(value=""),
-        'sinc_parameter': tk.DoubleVar(value=1.0),
+        'sinc_parameter': tk.IntVar(value=1),
     }
 
     row_number = 0

@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 class SignalVisualizer:
     def __init__(self, signal, time, hist_bins, signal_name, only_single_points=False):
-        self.signal = signal
-        self.time = time
+        self.signal = signal[:-1]
+        self.time = time[:-1]
         self.hist_bins = hist_bins
         self.signal_name = signal_name
         self.only_single_points = only_single_points

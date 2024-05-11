@@ -31,7 +31,7 @@ class SignalProcesser:
         self.number_of_samples = len(signal)
         if self.original_signal is not None:
             self.f_multiplier = len(self.original_signal)
-        self.num_samples = int(self.parameters['duration'] * self.parameters['sampling_rate'])
+        self.num_samples = int(self.parameters['duration'] * (self.parameters['sampling_rate'] + 1))
         self.time = np.linspace(self.processed_time[0], self.processed_time[-1], self.num_samples)
         self.operation = operation
         self.signal_type = 'S0'
@@ -106,12 +106,28 @@ class SignalProcesser:
 
         return reconstructed_signal
 
+
     def reconstruct_sinc(self):
-        reconstructed_signal = [0] * self.f_multiplier
-        for i in range(len(reconstructed_signal)):
-            t = i * len(self.time) / self.f_multiplier
-            reconstructed_signal[i] = sum(self.processed_signal[j] * np.sinc(self.sinc_parameter * (t - j)) for j in range(len(self.processed_signal)))
-        return reconstructed_signal
+        reconstructed_signal = np.zeros_like(self.original_time)
+
+        T = 1 / self.parameters['sampling_rate']
+
+        for i in range(len(self.processed_signal)):
+            start = int(max(0, i - self.sinc_parameter))
+            end = int(min(len(self.processed_signal), i + self.sinc_parameter))
+
+            for j in range(start, end):
+                ta, xa = self.processed_time[j], self.processed_signal[j]
+                reconstructed_signal += xa * self.sinc((self.original_time - ta) / T)
+
+
+        amplitude_max = max(reconstructed_signal)
+        original_amplitude_max = max(self.original_signal)
+
+        return reconstructed_signal / amplitude_max * original_amplitude_max
+
+    def sinc(self, x):
+        return np.where(x == 0, 1.0, np.sin(np.pi * x) / (np.pi * x))
 
     def return_params(self):
         return self.signal, self.time, self.hist_bins, self.signal_name, self.only_single_points
