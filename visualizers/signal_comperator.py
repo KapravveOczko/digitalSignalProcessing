@@ -41,13 +41,14 @@ class SignalComperator(ttk.Frame):
         return fig
 
     def calculate_statistics(self):
-        mse = sum((x - y)**2 for x, y in zip(self.first_signal, self.second_signal)) / len(self.first_signal)
+        N = len(self.first_signal)
+        mse = sum((x - y)**2 for x, y in zip(self.first_signal, self.second_signal)) / N
         if mse == 0:
             snr = float('inf')
             psnr = float('inf')
             enob = float('inf')
         else:
-            snr = 10 * math.log10(sum(x**2 for x in self.first_signal) / mse)
+            snr = 10 * math.log10(sum(x**2 for x in self.first_signal) / (mse * N))
             psnr = 10 * math.log10(1 / mse)
             enob = (snr - 1.76) / 6.02
         md = max(abs(x - y) for x, y in zip(self.first_signal, self.second_signal))

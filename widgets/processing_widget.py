@@ -98,7 +98,7 @@ def create_processing_widget(notebook_instance):
 
 
 def update_extra_fields(operation, all_options_dict):
-    for symbol in ['P', 'Q', 'R']:
+    for symbol in PROCESSING_OPERATIONS_TYPES:
         if operation == PROCESSING_OPERATIONS_TYPES[symbol]:
             for key in all_options_dict:
                 if key == symbol:

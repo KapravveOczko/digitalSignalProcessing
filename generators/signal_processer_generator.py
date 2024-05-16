@@ -31,7 +31,7 @@ class SignalProcesser:
         self.number_of_samples = len(signal)
         if self.original_signal is not None:
             self.f_multiplier = len(self.original_signal)
-        self.num_samples = int(self.parameters['duration'] * (self.parameters['sampling_rate'] + 1))
+        self.num_samples = int(self.parameters['duration'] * (self.parameters['sampling_rate'])) + 1
         self.time = np.linspace(self.processed_time[0], self.processed_time[-1], self.num_samples)
         self.operation = operation
         self.signal_type = 'S0'
