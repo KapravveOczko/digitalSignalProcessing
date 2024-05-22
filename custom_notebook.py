@@ -42,6 +42,8 @@ class CustomNotebook(ttk.Notebook):
         return label
 
     def get_tab_by_name(self, tab_name):
+        if tab_name is None or tab_name == "":
+            return None
         for tab in self.tabs():
             if self.tab(tab, "text") == tab_name:
                 return self.nametowidget(tab)
@@ -52,6 +54,7 @@ class CustomNotebook(ttk.Notebook):
         self.first_tab_menu['values'] = self.tab_names
         self.first_compare_tab_menu['values'] = self.tab_names
         self.second_tab_menu['values'] = self.tab_names
+        self.signal_for_filter_menu['values'] = self.tab_names
         self.second_compare_tab_menu['values'] = self.tab_names
         self.signal_to_process_menu['values'] = self.tab_names
 

@@ -16,18 +16,45 @@ SIGNAL_TYPES = {
     "S9": "skok jednostkowy",
     "S10": "impuls jednostkowy",
     "S11": "szum impulsowy",
+    "F1": "filtr dolnoprzepustowy",
+    "F2": "filtr pasmowy",
+    "F3": "filtr górnoprzepustowy",
+}
+
+WINDOW_TYPES = {
+    "W1": "prostokątne",
+    "W2": "Hanninga",
+    "W3": "Hamminga",
+    "W4": "Blackmana",
 }
 
 class SignalGenerator:
     def __init__(self, signal_type_var = None, parameters = None):
         self.parameters = {}
         for k in parameters:
+            if k == 'card_to_filter':
+                self.parameters['card_to_filter'] = parameters[k]
+                continue
             self.parameters[k] = parameters[k].get()
 
         self.signal = None
         self.original_signal = None
         self.signal_type = signal_type_var
         self.only_single_points = False
+
+        self.fd = self.parameters['sampling_rate']
+        self.M = self.parameters['order']
+
+        if self.M % 2 == 0:
+            raise Exception("Order of filter must be odd")
+
+        self.f0 = self.parameters['cut_off_frequency']
+
+        windows_types_keys = list(WINDOW_TYPES.keys())
+        windows_types_values = list(WINDOW_TYPES.values())
+        self.window_type = windows_types_keys[windows_types_values.index(self.parameters['window_type'])]
+        self.window = self.get_window()
+
         self.hist_bins = self.parameters['hist_bins']
         self.amplitude = self.parameters['amplitude']
         self.f_multiplier = self.parameters['frequency']
@@ -62,9 +89,77 @@ class SignalGenerator:
         elif self.signal_type == "S11":
             self.only_single_points = True
             self.signal = self.generate_impulse_noise()
+        elif self.signal_type == "F1":
+            self.signal = self.generate_low_pass_filter()
+        elif self.signal_type == "F2":
+            self.signal = self.generate_band_pass_filter()
+        elif self.signal_type == "F3":
+            self.signal = self.generate_high_pass_filter()
+
+        if self.signal_type in ["F1", "F2", "F3"]:
+            print(self.parameters['card_to_filter'])
+            if self.parameters['card_to_filter'] is not None:
+                self.time = np.linspace(self.parameters['start_time'], self.parameters['start_time'] + self.parameters['duration'], len(self.parameters['card_to_filter'].signal) + self.M - 1)
+                self.signal = np.convolve(self.parameters['card_to_filter'].signal, self.signal)
+            else:
+                self.only_single_points = True
+                self.time = [i for i in range(self.M)]
+
+    def get_window(self):
+        if self.window_type == "W1":
+            return self.recengle_window
+        elif self.window_type == "W2":
+            return self.hanning_window
+        elif self.window_type == "W3":
+            return self.hamming_window
+        elif self.window_type == "W4":
+            return self.blackman_window
+
+    def recengle_window(self, n):
+        return 1.0
+
+    def hanning_window(self, n):
+        return 0.5 - 0.5 * math.cos(2 * math.pi * n / self.M)
+
+    def hamming_window(self, n):
+        return 0.53836 - 0.46164 * math.cos(2 * math.pi * n / self.M)
+
+    def blackman_window(self, n):
+        return 0.42 - 0.5 * math.cos(2.0 * math.pi * n / self.M) + 0.8 * math.cos(4.0 * math.pi * n / self.M)
 
     def calculate_sine(self, t):
         return math.sin(2 * math.pi * t / self.parameters['period'])
+
+    def pass_filter(self, value_function):
+        return [value_function(n) for n in range(self.M)]
+
+    def low_pass_filter_value(self, n):
+        k = self.fd / self.f0
+        c = (self.M - 1) / 2
+        if n == c:
+            result = 2.0 / k
+        else:
+            result = math.sin(2.0 * math.pi * (n - c) / k) / (math.pi * (n - c))
+
+        return result * self.window(n)
+
+
+    def band_pass_filter_value(self, n):
+        return self.low_pass_filter_value(n) * 2.0 * math.sin(math.pi * n / 2.0)
+
+
+    def high_pass_filter_value(self, n):
+        return self.low_pass_filter_value(n) * math.pow(-1, n)
+
+
+    def generate_low_pass_filter(self):
+        return self.pass_filter(self.low_pass_filter_value)
+
+    def generate_band_pass_filter(self):
+        return self.pass_filter(self.band_pass_filter_value)
+
+    def generate_high_pass_filter(self):
+        return self.pass_filter(self.high_pass_filter_value)
 
     def calculate_term_position(self, t):
         return t / self.parameters['period'] - math.floor(t / self.parameters['period'])

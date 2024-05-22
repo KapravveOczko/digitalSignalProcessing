@@ -11,6 +11,21 @@ class SignalComperator(ttk.Frame):
         self.first_signal = first_signal.signal
         self.second_signal = second_signal.signal
         self.time = first_signal.time
+
+        # if len(self.first_signal) != len(self.second_signal):
+        #     if len(self.first_signal) > len(self.second_signal):
+        #         self.second_signal = self.second_signal + [0] * (len(self.first_signal) - len(self.second_signal))
+        #         self.time = first_signal.time
+        #     else:
+        #         self.first_signal = self.first_signal + [0] * (len(self.second_signal) - len(self.first_signal))
+        #         self.time = second_signal.time
+
+        if len(self.first_signal) != len(self.second_signal):
+            min_len = min(len(self.first_signal), len(self.second_signal))
+            self.first_signal = self.first_signal[:min_len]
+            self.second_signal = self.second_signal[:min_len]
+            self.time = self.time[:min_len]
+
         fig = self.plot_signals()
 
         canvas = FigureCanvasTkAgg(fig, master=self)

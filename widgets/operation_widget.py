@@ -49,5 +49,4 @@ def create_operation_on_signals_widget(notebook_instance):
     generate_button.grid(column=1, row=row_number)
 
 def generate_and_show_plot_from_two_signals(notebook_instance, operation, first_signal, second_signal):
-    if len(first_signal.signal) == len(second_signal.signal):
-        notebook_instance.generate_and_show_plot(TwoSignalOperationGenerator, [operation, first_signal, second_signal])
+    notebook_instance.generate_and_show_plot(TwoSignalOperationGenerator, [operation, first_signal, second_signal])
