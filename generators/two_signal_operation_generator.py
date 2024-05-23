@@ -6,6 +6,8 @@ OPERATION_TYPES = {
     'D3': 'Mnożenie',
     'D4': 'Dzielenie',
     'S': "Splot",
+    'C': "Korelacja",
+    'CD': "Korelacja bezpośrednia",
 }
 
 class TwoSignalOperationGenerator:
@@ -34,14 +36,61 @@ class TwoSignalOperationGenerator:
         elif self.operation == 'D4':
             self.signal = np.divide(self.first_signal, self.second_signal)
         elif self.operation == 'S':
-            self.signal = np.convolve(self.first_signal, self.second_signal)
+            self.signal = self.convolve()
+        elif self.operation == 'C':
+            self.signal = self.correlation()
+        elif self.operation == 'CD':
+            self.signal = self.correlation_direct()
 
-            start = 0
-            first_signal_duration = self.first_signal_time[-1] - self.first_signal_time[0]
-            second_signal_duration = self.second_signal_time[-1] - self.second_signal_time[0]
-            end = first_signal_duration + second_signal_duration
+    def correlation(self):
+        signal = np.correlate(self.first_signal, self.second_signal, 'full')
+        start = 0
+        first_signal_duration = self.first_signal_time[-1] - self.first_signal_time[0]
+        second_signal_duration = self.second_signal_time[-1] - self.second_signal_time[0]
+        end = first_signal_duration + second_signal_duration
 
-            self.time = np.linspace(start, end, len(self.signal), endpoint=False)
+        self.time = np.linspace(start, end, len(signal), endpoint=False)
+
+        return signal
+
+    # def correlation_direct(self):
+    #     signal = np.correlate(self.first_signal, self.second_signal, 'same')
+    #     start = 0
+    #     first_signal_duration = self.first_signal_time[-1] - self.first_signal_time[0]
+    #     second_signal_duration = self.second_signal_time[-1] - self.second_signal_time[0]
+    #     end = first_signal_duration + second_signal_duration
+
+    #     self.time = np.linspace(start, end, len(signal), endpoint=False)
+
+    #     return signal
+
+    def convolve(self):
+        signal = np.convolve(self.first_signal, self.second_signal)
+        start = 0
+        first_signal_duration = self.first_signal_time[-1] - self.first_signal_time[0]
+        second_signal_duration = self.second_signal_time[-1] - self.second_signal_time[0]
+        end = first_signal_duration + second_signal_duration
+
+        self.time = np.linspace(start, end, len(signal), endpoint=False)
+
+        return signal
+
+    def correlation_direct(self):
+        signal = [0] * (len(self.first_signal) + len(self.second_signal) - 1)
+
+        for i in range(len(self.first_signal)):
+            for j in range(len(self.second_signal)):
+                signal[i + j] += self.first_signal[i] * self.second_signal[j]
+
+        start = 0
+        first_signal_duration = self.first_signal_time[-1] - self.first_signal_time[0]
+        second_signal_duration = self.second_signal_time[-1] - self.second_signal_time[0]
+        end = first_signal_duration + second_signal_duration
+
+        self.time = np.linspace(start, end, len(signal), endpoint=False)
+
+        return signal
+
 
     def return_params(self):
         parameters = [self.signal, self.time, self.hist_bins, self.signal_name]

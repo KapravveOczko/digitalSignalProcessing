@@ -37,6 +37,8 @@ class SignalVisualizer:
 
     def calculate_statistics(self):
         N = len(self.signal)
+        if N == 0:
+            return 0, 0, 0, 0, 0
         mean_value = sum(self.signal) / N
         abs_mean_value = sum(abs(x) for x in self.signal) / N
         rms_value = (sum(x**2 for x in self.signal) / N)**0.5
