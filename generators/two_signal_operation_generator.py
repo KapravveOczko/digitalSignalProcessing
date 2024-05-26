@@ -95,7 +95,4 @@ class TwoSignalOperationGenerator:
     def return_params(self):
         parameters = [self.signal, self.time, self.hist_bins, self.signal_name]
 
-        if self.operation == 'S':
-            parameters.append(True)
-
         return parameters

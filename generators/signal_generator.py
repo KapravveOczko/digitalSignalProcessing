@@ -97,7 +97,6 @@ class SignalGenerator:
             self.signal = self.generate_high_pass_filter()
 
         if self.signal_type in ["F1", "F2", "F3"]:
-            print(self.parameters['card_to_filter'])
             if self.parameters['card_to_filter'] is not None:
                 self.time = np.linspace(self.parameters['start_time'], self.parameters['start_time'] + self.parameters['duration'], len(self.parameters['card_to_filter'].signal) + self.M - 1)
                 self.signal = np.convolve(self.parameters['card_to_filter'].signal, self.signal)
