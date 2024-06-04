@@ -18,9 +18,9 @@ def create_generate_signals_widget(notebook_instance):
     row_number_for_filter = 1
 
     params_val_for_filter_dict = {
-        'sampling_rate': tk.IntVar(value=50),
-        'order': tk.IntVar(value=25),
-        'cut_off_frequency': tk.IntVar(value=10),
+        'sampling_rate': tk.IntVar(value=10000),
+        'order': tk.IntVar(value=125),
+        'cut_off_frequency': tk.IntVar(value=50),
     }
 
     label_text_for_filter_dict = {
@@ -32,13 +32,13 @@ def create_generate_signals_widget(notebook_instance):
     params_val_dict = {
         'amplitude': tk.DoubleVar(value=1.0),
         'start_time': tk.DoubleVar(value=0.0),
-        'duration': tk.DoubleVar(value=5.0),
-        'period': tk.DoubleVar(value=1.0),
+        'duration': tk.DoubleVar(value=0.1),
+        'period': tk.DoubleVar(value=0.01),
         'fill_factor': tk.DoubleVar(value=0.5),
         'probability': tk.DoubleVar(value=0.2),
         'jump_number': tk.IntVar(value=20),
         'time_shift': tk.DoubleVar(value=4.0),
-        'frequency': tk.IntVar(value=1000),
+        'frequency': tk.IntVar(value=10000),
         'hist_bins': tk.IntVar(value=10),
     }
 

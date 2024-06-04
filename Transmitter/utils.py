@@ -16,5 +16,5 @@ def correlation(a, b):
     return convolution(a, b)
 
 def sinusoidal_signal_for_antenna(A, T, t):
-    return A * math.sin((2 * math.pi / T) * t) + A * math.sin((2 * math.pi / T * 2) * t)
+    return A * np.sin((2 * np.pi / T) * t) + A * np.sin((2 * np.pi / T * 2) * t)
 

@@ -4,6 +4,8 @@ import numpy as np
 import random
 import math
 
+from scipy.signal import butter, filtfilt
+
 SIGNAL_TYPES = {
     "S1": "szum o rozkładzie jednostajnym",
     "S2": "szum gaussowski",
@@ -43,10 +45,10 @@ class SignalGenerator:
         self.only_single_points = False
 
         self.fd = self.parameters['sampling_rate']
-        self.M = self.parameters['order']
+        self.M = int(np.power(self.parameters['order'], 1/3))
 
-        if self.M % 2 == 0:
-            raise Exception("Order of filter must be odd")
+        # if self.M % 2 == 0:
+        #     raise Exception("Order of filter must be odd")
 
         self.f0 = self.parameters['cut_off_frequency']
 
@@ -58,7 +60,11 @@ class SignalGenerator:
         self.hist_bins = self.parameters['hist_bins']
         self.amplitude = self.parameters['amplitude']
         self.f_multiplier = self.parameters['frequency']
-        self.time = np.linspace(self.parameters['start_time'], self.parameters['start_time'] + self.parameters['duration'], int(self.f_multiplier))
+
+        start = self.parameters['start_time']
+        end = self.parameters['start_time'] + self.parameters['duration']
+
+        self.time = np.linspace(start, end, int(self.f_multiplier * end), endpoint=False)
 
     def return_params(self):
         return self.signal, self.time, self.hist_bins, self.signal_name, self.only_single_points
@@ -98,11 +104,40 @@ class SignalGenerator:
 
         if self.signal_type in ["F1", "F2", "F3"]:
             if self.parameters['card_to_filter'] is not None:
-                self.time = np.linspace(self.parameters['start_time'], self.parameters['start_time'] + self.parameters['duration'], len(self.parameters['card_to_filter'].signal) + self.M - 1)
-                self.signal = np.convolve(self.parameters['card_to_filter'].signal, self.signal)
+                start = self.parameters['card_to_filter'].time[0]
+                end = self.parameters['card_to_filter'].time[-1]
+                # self.signal = np.convolve(self.parameters['card_to_filter'].signal, self.signal, mode='full')
+                if self.signal_type == "F1":
+                    self.signal = self.butter_lowpass_filter(self.parameters['card_to_filter'].signal)
+                if self.signal_type == "F2":
+                    self.signal = self.butter_bandpass_filter(self.parameters['card_to_filter'].signal)
+                if self.signal_type == "F3":
+                    self.signal = self.butter_highpass_filter(self.parameters['card_to_filter'].signal)
+                self.time = np.linspace(start, end, len(self.signal), endpoint=False)
+                self.signal_name = "Przefiltrowanego sygnału"
+
             else:
                 self.only_single_points = True
-                self.time = [i for i in range(self.M)]
+                self.time = [i * (self.M / len(self.signal)) for i in range(len(self.signal))]
+
+
+    def butter_lowpass_filter(self, data):
+        normal_cutoff = self.f0 / (0.5 * self.fd)
+        b, a = butter(self.M, normal_cutoff, btype='lowpass', analog=False)
+        y = filtfilt(b, a, data)
+        return y
+
+    def butter_highpass_filter(self, data):
+        normal_cutoff = self.f0 / (0.5 * self.fd)
+        b, a = butter(self.M, normal_cutoff, btype='highpass', analog=False)
+        y = filtfilt(b, a, data)
+        return y
+
+    def butter_bandpass_filter(self, data):
+        normal_cutoff = self.f0 / (0.5 * self.fd)
+        b, a = butter(self.M, normal_cutoff, btype='bandpass', analog=False)
+        y = filtfilt(b, a, data)
+        return y
 
     def get_window(self):
         if self.window_type == "W1":
@@ -118,33 +153,33 @@ class SignalGenerator:
         return 1.0
 
     def hanning_window(self, n):
-        return 0.5 - 0.5 * math.cos(2 * math.pi * n / self.M)
+        return 0.5 - 0.5 * np.cos(2 * np.pi * n / self.M)
 
     def hamming_window(self, n):
-        return 0.53836 - 0.46164 * math.cos(2 * math.pi * n / self.M)
+        return 0.53836 - 0.46164 * np.cos(2 * np.pi * n / self.M)
 
     def blackman_window(self, n):
-        return 0.42 - 0.5 * math.cos(2.0 * math.pi * n / self.M) + 0.8 * math.cos(4.0 * math.pi * n / self.M)
+        return 0.42 - 0.5 * np.cos(2.0 * np.pi * n / self.M) + 0.08 * np.cos(4.0 * np.pi * n / self.M)
 
     def calculate_sine(self, t):
-        return math.sin(2 * math.pi * t / self.parameters['period'])
+        return np.sin(2 * np.pi * t / self.parameters['period'])
 
     def pass_filter(self, value_function):
         return [value_function(n) for n in range(self.M)]
 
     def low_pass_filter_value(self, n):
         k = self.fd / self.f0
-        c = (self.M - 1) / 2
+        c = int((self.M - 1) / 2)
         if n == c:
             result = 2.0 / k
         else:
-            result = math.sin(2.0 * math.pi * (n - c) / k) / (math.pi * (n - c))
+            result = np.sin(2.0 * np.pi * (n - c) / k) / (np.pi * (n - c))
 
         return result * self.window(n)
 
 
     def band_pass_filter_value(self, n):
-        return self.low_pass_filter_value(n) * 2.0 * math.sin(math.pi * n / 2.0)
+        return self.low_pass_filter_value(n) * 2.0 * np.sin(np.pi * n / 2.0)
 
 
     def high_pass_filter_value(self, n):

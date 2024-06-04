@@ -20,7 +20,7 @@ class TwoSignalOperationGenerator:
         self.signal = None
         self.original_signal = None
         self.f_multiplier = len(self.first_signal)
-        self.time = np.linspace(0, 10, self.f_multiplier, endpoint=False)
+        self.time = np.linspace(first_signal.time[0], first_signal.time[-1], self.f_multiplier, endpoint=False)
         self.parameters = first_signal.parameters
         self.signal_name = '2 sygnałów'
         self.signal_type = 'S0'
@@ -53,23 +53,10 @@ class TwoSignalOperationGenerator:
 
         return signal
 
-    # def correlation_direct(self):
-    #     signal = np.correlate(self.first_signal, self.second_signal, 'same')
-    #     start = 0
-    #     first_signal_duration = self.first_signal_time[-1] - self.first_signal_time[0]
-    #     second_signal_duration = self.second_signal_time[-1] - self.second_signal_time[0]
-    #     end = first_signal_duration + second_signal_duration
-
-    #     self.time = np.linspace(start, end, len(signal), endpoint=False)
-
-    #     return signal
-
     def convolve(self):
         signal = np.convolve(self.first_signal, self.second_signal)
-        start = 0
-        first_signal_duration = self.first_signal_time[-1] - self.first_signal_time[0]
-        second_signal_duration = self.second_signal_time[-1] - self.second_signal_time[0]
-        end = first_signal_duration + second_signal_duration
+        start = self.first_signal_time[0]
+        end = self.first_signal_time[-1]
 
         self.time = np.linspace(start, end, len(signal), endpoint=False)
 
