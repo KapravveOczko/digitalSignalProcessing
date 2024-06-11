@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 import numpy as np
 import random
-import math
 
 from scipy.signal import butter, filtfilt
 
@@ -18,6 +17,9 @@ SIGNAL_TYPES = {
     "S9": "skok jednostkowy",
     "S10": "impuls jednostkowy",
     "S11": "szum impulsowy",
+    "S12": "funkcja S1",
+    "S13": "funkcja S2",
+    "S14": "funkcja S3",
     "F1": "filtr dolnoprzepustowy",
     "F2": "filtr pasmowy",
     "F3": "filtr górnoprzepustowy",
@@ -66,6 +68,12 @@ class SignalGenerator:
 
         self.time = np.linspace(start, end, int(self.f_multiplier * end), endpoint=False)
 
+
+        self.sampling_rate_transformation = self.parameters['sampling_rate_transformation']
+
+        # if self.signal_type in ["S12", "S13", "S14"]:
+        #     self.time = np.linspace(start, end, self.f_multiplier, endpoint=False)
+
     def return_params(self):
         return self.signal, self.time, self.hist_bins, self.signal_name, self.only_single_points
 
@@ -95,6 +103,12 @@ class SignalGenerator:
         elif self.signal_type == "S11":
             self.only_single_points = True
             self.signal = self.generate_impulse_noise()
+        elif self.signal_type == "S12":
+            self.signal = self.calculate_s1(self.time)
+        elif self.signal_type == "S13":
+            self.signal = self.calculate_s2(self.time)
+        elif self.signal_type == "S14":
+            self.signal = self.calculate_s3(self.time)
         elif self.signal_type == "F1":
             self.signal = self.generate_low_pass_filter()
         elif self.signal_type == "F2":
@@ -161,6 +175,15 @@ class SignalGenerator:
     def blackman_window(self, n):
         return 0.42 - 0.5 * np.cos(2.0 * np.pi * n / self.M) + 0.08 * np.cos(4.0 * np.pi * n / self.M)
 
+    def calculate_s1(self, t):
+        return [2 * np.sin(np.pi * t + np.pi / 2) + 5 * np.sin(4 * np.pi * t + np.pi / 2) for t in t]
+
+    def calculate_s2(self, t):
+        return [2 * np.sin(np.pi * t) + np.sin(2 * np.pi * t) + 5 * np.sin(4 * np.pi * t) for t in t]
+
+    def calculate_s3(self, t):
+        return [5 * np.sin(np.pi * t) + 5 * np.sin(8 * np.pi * t) for t in t]
+
     def calculate_sine(self, t):
         return np.sin(2 * np.pi * t / self.parameters['period'])
 
@@ -183,7 +206,7 @@ class SignalGenerator:
 
 
     def high_pass_filter_value(self, n):
-        return self.low_pass_filter_value(n) * math.pow(-1, n)
+        return self.low_pass_filter_value(n) * np.power(-1, n)
 
 
     def generate_low_pass_filter(self):
@@ -196,7 +219,7 @@ class SignalGenerator:
         return self.pass_filter(self.high_pass_filter_value)
 
     def calculate_term_position(self, t):
-        return t / self.parameters['period'] - math.floor(t / self.parameters['period'])
+        return t / self.parameters['period'] - np.floor(t / self.parameters['period'])
 
     def generate_uniform_noise(self):
         return np.random.uniform(-self.parameters['amplitude'], self.parameters['amplitude'], size=self.f_multiplier)

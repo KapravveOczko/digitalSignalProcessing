@@ -1,10 +1,10 @@
 import numpy as np
-import math
 
 PROCESSING_OPERATIONS_TYPES = {
     'P': 'Próbkowanie',
     'Q': 'Kwantyzazja',
     'R': 'Rekonstrukcja',
+    'T': 'Transformacja',
 }
 
 QUANTIZATION_METHOD = {
@@ -16,6 +16,13 @@ RECONSTRUCTION_METHOD = {
     'R1': 'Ekstrapolacja zerowego rzędu',
     'R2': 'Interpolacja pierwszego rzędu',
     'R3': 'Rekonstrukcja w oparciu o funkcję sinc',
+}
+
+TRANSFORMATION_METHOD = {
+    'F1': 'F1',
+    # 'F2': 'F2',
+    'T1': 'T1',
+    # 'T2': 'T2',
 }
 
 class SignalProcesser:

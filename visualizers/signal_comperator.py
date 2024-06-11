@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-import math
+import numpy as np
 
 class SignalComperator(ttk.Frame):
     def __init__(self, container, first_signal, second_signal):
@@ -63,8 +63,8 @@ class SignalComperator(ttk.Frame):
             psnr = float('inf')
             enob = float('inf')
         else:
-            snr = 10 * math.log10(sum(x**2 for x in self.first_signal) / (mse * N))
-            psnr = 10 * math.log10(1 / mse)
+            snr = 10 * np.log10(sum(x**2 for x in self.first_signal) / (mse * N))
+            psnr = 10 * np.log10(1 / mse)
             enob = (snr - 1.76) / 6.02
         md = max(abs(x - y) for x, y in zip(self.first_signal, self.second_signal))
         return mse, snr, psnr, md, enob

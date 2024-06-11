@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-from generators.signal_processer_generator import SignalProcesser, PROCESSING_OPERATIONS_TYPES, QUANTIZATION_METHOD, RECONSTRUCTION_METHOD
+from generators.signal_processer_generator import SignalProcesser, PROCESSING_OPERATIONS_TYPES, QUANTIZATION_METHOD, RECONSTRUCTION_METHOD, TRANSFORMATION_METHOD
+from generators.signal_transformation_generator import SignalTransformationGenerator
+from visualizers.signal_transformation import SignalTransformation
 
 def create_processing_widget(notebook_instance):
     notebook_instance.processing_frame = ttk.Frame(notebook_instance)
@@ -14,6 +16,7 @@ def create_processing_widget(notebook_instance):
         'quantization_level': tk.IntVar(value=1),
         'quantization_method': tk.StringVar(value=""),
         'reconstruction_method': tk.StringVar(value=""),
+        'transformation_method': tk.StringVar(value=""),
         'sinc_parameter': tk.IntVar(value=1),
     }
 
@@ -35,20 +38,25 @@ def create_processing_widget(notebook_instance):
     notebook_instance.signal_to_process_menu = ttk.Combobox(processing_signal_frame, textvariable=notebook_instance.signal_to_process, values=[])
     notebook_instance.signal_to_process_menu.grid(column=1, row=row_number, padx=10, sticky="w")
 
+    row_number += 1
+
     quantization_method_keys = list(QUANTIZATION_METHOD.keys())
     quantization_method_values = list(QUANTIZATION_METHOD.values())
-
-    row_number += 1
     q_operation_label = notebook_instance.create_label(processing_signal_frame, "Wybierz metodę:", row_number)
     q_operation_menu = ttk.OptionMenu(processing_signal_frame, params_val_dict['quantization_method'], quantization_method_values[0], *quantization_method_values)
     q_operation_menu.grid(column=1, row=row_number, padx=10, sticky="w")
 
     reconstruction_method_keys = list(RECONSTRUCTION_METHOD.keys())
     reconstruction_method_values = list(RECONSTRUCTION_METHOD.values())
-
     r_operation_label = notebook_instance.create_label(processing_signal_frame, "Wybierz metodę:", row_number)
     r_operation_menu = ttk.OptionMenu(processing_signal_frame, params_val_dict['reconstruction_method'], reconstruction_method_values[0], *reconstruction_method_values)
     r_operation_menu.grid(column=1, row=row_number, padx=10, sticky="w")
+
+    transformation_method_keys = list(TRANSFORMATION_METHOD.keys())
+    transformation_method_values = list(TRANSFORMATION_METHOD.values())
+    t_operation_label = notebook_instance.create_label(processing_signal_frame, "Wybierz metodę:", row_number)
+    t_operation_menu = ttk.OptionMenu(processing_signal_frame, params_val_dict['transformation_method'], transformation_method_values[0], *transformation_method_values)
+    t_operation_menu.grid(column=1, row=row_number, padx=10, sticky="w")
 
     row_number += 1
     sampling_rate_label = notebook_instance.create_label(processing_signal_frame, "Częstotliwość próbkowania:", row_number)
@@ -76,6 +84,10 @@ def create_processing_widget(notebook_instance):
             r_operation_menu,
             sinc_parameter_label,
             sinc_parameter_entry,
+        ],
+        'T': [
+            t_operation_label,
+            t_operation_menu,
         ],
     }
 
@@ -109,11 +121,21 @@ def update_extra_fields(operation, all_options_dict):
                         option.grid_remove()
             break
 
+
+def generate_and_show_transformation_plots(notebook_instance, operation, signal):
+    signal_transformation_generator = SignalTransformationGenerator(notebook_instance, operation, signal, SignalTransformation)
+
+    return signal_transformation_generator.return_tabs()
+
 def generate_and_show_plot_after_processing(notebook_instance, operation, signal, params_val_dict):
     quantization_method_keys = list(QUANTIZATION_METHOD.keys())
     quantization_method_values = list(QUANTIZATION_METHOD.values())
     reconstruction_method_keys = list(RECONSTRUCTION_METHOD.keys())
     reconstruction_method_values = list(RECONSTRUCTION_METHOD.values())
+    transformation_method_keys = list(TRANSFORMATION_METHOD.keys())
+    transformation_method_values = list(TRANSFORMATION_METHOD.values())
+
+    transformation_operation = transformation_method_keys[transformation_method_values.index(params_val_dict['transformation_method'].get())]
 
     params = {
         'sampling_rate': params_val_dict['sampling_rate'].get(),
@@ -128,7 +150,16 @@ def generate_and_show_plot_after_processing(notebook_instance, operation, signal
         'time': signal.time,
     }
 
-    new_tab = notebook_instance.generate_and_show_plot(SignalProcesser, [operation, signal.signal, params])
-    if new_tab.original_signal is None:
-        new_tab.original_signal = signal.signal
-        new_tab.original_time = signal.time
+    if operation != 'T':
+        new_tab = notebook_instance.generate_and_show_plot(SignalProcesser, [operation, signal.signal, params])
+        if new_tab.original_signal is None:
+            new_tab.original_signal = signal.signal
+            new_tab.original_time = signal.time
+
+    else:
+        new_tabs = generate_and_show_transformation_plots(notebook_instance, transformation_operation, signal)
+        for tab in new_tabs:
+            notebook_instance.add(tab, text=f"karta {notebook_instance.card_number}")
+            notebook_instance.card_number += 1
+            notebook_instance.select(tab)
+            notebook_instance.update_tab_list()

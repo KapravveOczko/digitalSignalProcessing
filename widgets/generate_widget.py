@@ -11,7 +11,6 @@ def create_generate_signals_widget(notebook_instance):
     signal_params_frame = ttk.LabelFrame(notebook_instance.generate_frame, text="Parametry sygnału")
     signal_params_frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-
     all_options_for_signal = []
     all_options_for_filter = []
     row_number = 0
@@ -32,13 +31,14 @@ def create_generate_signals_widget(notebook_instance):
     params_val_dict = {
         'amplitude': tk.DoubleVar(value=1.0),
         'start_time': tk.DoubleVar(value=0.0),
-        'duration': tk.DoubleVar(value=0.1),
-        'period': tk.DoubleVar(value=0.01),
+        'duration': tk.DoubleVar(value=5),
+        'period': tk.DoubleVar(value=1),
         'fill_factor': tk.DoubleVar(value=0.5),
         'probability': tk.DoubleVar(value=0.2),
         'jump_number': tk.IntVar(value=20),
         'time_shift': tk.DoubleVar(value=4.0),
-        'frequency': tk.IntVar(value=10000),
+        'frequency': tk.IntVar(value=100),
+        'sampling_rate_transformation': tk.IntVar(value=10),
         'hist_bins': tk.IntVar(value=10),
     }
 
@@ -52,6 +52,7 @@ def create_generate_signals_widget(notebook_instance):
         'jump_number': "Numer próbki skoku:",
         'time_shift': "Czas skoku:",
         'frequency': "Częstotliwość",
+        'sampling_rate_transformation': "Częstotliwość próbkowania do tranformacji:",
     }
 
     notebook_instance.create_label(signal_params_frame, "Typ sygnału:", row_number)
@@ -59,7 +60,7 @@ def create_generate_signals_widget(notebook_instance):
     signal_types_keys = list(SIGNAL_TYPES.keys())
     signal_types_values = list(SIGNAL_TYPES.values())
 
-    signal_type_var = tk.StringVar(value=signal_types_values[2])
+    signal_type_var = tk.StringVar(value=signal_types_values[11])
 
     signal_type_menu = ttk.Combobox(signal_params_frame, textvariable=signal_type_var, values=signal_types_values, width=42)
     signal_type_menu.grid(row=row_number, column=1, padx=5, sticky="w")
@@ -109,7 +110,7 @@ def create_generate_signals_widget(notebook_instance):
     ])
     hist_bins_menu.grid(row=row_number, column=1, padx=5, sticky="w")
 
-    update_extra_fields(signal_type_var.get(), all_options_for_signal, all_options_for_filter)
+    update_extra_fields(signal_types_keys[signal_types_values.index(signal_type_var.get())], all_options_for_signal, all_options_for_filter)
 
     row_number += 1
     generate_button = ttk.Button(
@@ -123,7 +124,7 @@ def create_generate_signals_widget(notebook_instance):
     )
     generate_button.grid(row=row_number, column=0, pady=10)
 
-    signal_type_var.trace_add("write", lambda *args: update_extra_fields(signal_type_var.get(), all_options_for_signal, all_options_for_filter))
+    signal_type_var.trace_add("write", lambda *args: update_extra_fields(signal_types_keys[signal_types_values.index(signal_type_var.get())], all_options_for_signal, all_options_for_filter))
 
     read_button = ttk.Button(
         signal_params_frame,
@@ -151,7 +152,7 @@ def update_extra_fields(operation, all_options_for_signal_dict, all_options_for_
     all_options_to_render = None
     all_options_to_remove = None
 
-    if operation[0] == 's':
+    if operation[0] == 'S':
         all_options_to_render = all_options_for_signal_dict
         all_options_to_remove = all_options_for_filter_dict
     else:

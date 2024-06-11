@@ -1,4 +1,4 @@
-import math
+import numpy as np
 
 def convolution(a, b):
     result = []
