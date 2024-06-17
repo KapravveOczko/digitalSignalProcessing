@@ -23,9 +23,9 @@ class CustomNotebook(ttk.Notebook):
         self.bind("<ButtonRelease-1>", self.on_close_release)
 
         self.card_number = 1
-        self.stable_card_number = 4
+        self.stable_card_number = 3
 
-        create_compare_signals_widget(self)
+        # create_compare_signals_widget(self)
         create_processing_widget(self)
         create_operation_on_signals_widget(self)
         create_generate_signals_widget(self)
@@ -52,10 +52,10 @@ class CustomNotebook(ttk.Notebook):
         self.tab_names = [self.tab(tab_id, "text") for tab_id in self.tabs()][self.stable_card_number::]
 
         self.first_tab_menu['values'] = self.tab_names
-        self.first_compare_tab_menu['values'] = self.tab_names
         self.second_tab_menu['values'] = self.tab_names
+        # self.first_compare_tab_menu['values'] = self.tab_names
+        # self.second_compare_tab_menu['values'] = self.tab_names
         self.signal_for_filter_menu['values'] = self.tab_names
-        self.second_compare_tab_menu['values'] = self.tab_names
         self.signal_to_process_menu['values'] = self.tab_names
 
     def generate_and_show_plot(self, generator, parameters):

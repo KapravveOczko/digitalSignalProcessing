@@ -20,9 +20,8 @@ RECONSTRUCTION_METHOD = {
 
 TRANSFORMATION_METHOD = {
     'F1': 'F1',
-    # 'F2': 'F2',
+    'F1-DIT': 'F1-DIT',
     'T1': 'T1',
-    # 'T2': 'T2',
 }
 
 class SignalProcesser:

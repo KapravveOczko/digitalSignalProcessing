@@ -21,13 +21,9 @@ class SignalTransformation(ttk.Frame):
     def plot_signals(self):
         x, y = self.transform_x, self.transform
 
-        yy = np.around(y, 4)
-
-        yy = [complex(y.real if abs(y.real) > 0.3 else 0, y.imag if abs(y.imag) > 0.3 else 0) for y in yy]
 
         if len(y) == 0:
             return
-
 
         fig = Figure(figsize=(4, 5), dpi=100)
         axes = fig.add_subplot(211)
@@ -40,12 +36,12 @@ class SignalTransformation(ttk.Frame):
 
         if self.module_phase:
             if self.line:
-                axes.plot(x, [i.real for i in yy], c = 'blue')
-            axes.scatter(x, [i.real for i in yy], c = 'red')
+                axes.plot(x, [i.real for i in y], c = 'blue')
+            axes.scatter(x, [i.real for i in y], c = 'red')
         else:
             if self.line:
-                axes.plot(x, [np.sqrt(i.real ** 2 + i.imag ** 2) for i in yy], c='blue')
-            axes.scatter(x, [np.sqrt(i.real ** 2 + i.imag ** 2) for i in yy], c='red')
+                axes.plot(x, [np.sqrt(i.real ** 2 + i.imag ** 2) for i in y], c='blue')
+            axes.scatter(x, [np.sqrt(i.real ** 2 + i.imag ** 2) for i in y], c='red')
 
         axes.set_title(f'')
         axes.set_xlabel("Częstotliwość")
@@ -56,12 +52,12 @@ class SignalTransformation(ttk.Frame):
 
         if self.module_phase:
             if self.line:
-                axes2.plot(x, [i.imag for i in yy], c = 'blue')
-            axes2.scatter(x, [i.imag for i in yy], c = 'red')
+                axes2.plot(x, [i.imag for i in y], c = 'blue')
+            axes2.scatter(x, [i.imag for i in y], c = 'red')
         else:
             if self.line:
-                axes2.plot(x, [cmath.phase(i) for i in yy], c='blue')
-            axes2.scatter(x, [cmath.phase(i) for i in yy], c='red')
+                axes2.plot(x, [cmath.phase(i) for i in y], c='blue')
+            axes2.scatter(x, [cmath.phase(i) for i in y], c='red')
 
         axes2.set_title(f'')
         axes2.set_xlabel("Częstotliwość")

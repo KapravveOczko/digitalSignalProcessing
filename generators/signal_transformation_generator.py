@@ -11,16 +11,23 @@ class SignalTransformationGenerator:
 
         self.signal, self.time = self.calculate_signal(signal)
 
+        self.signal = self.zero_padding(self.signal)
+
         self.transform_last_used = ''
         self.executing_time = 0
         self.transform_x = []
 
         if operation == 'F1':
             self.transform_f1()
+        elif operation == 'F1-DIT':
+            self.transform_f1_dit()
         elif operation == 'T1':
             self.transform_t1()
 
-        self.transform_x = [i / len(self.transform) * self.sampling_rate_transformation for i in range(len(self.transform))]
+
+        N = len(self.transform)
+        self.transform_x = [i / N * self.sampling_rate_transformation for i in range(len(self.transform))]
+        self.transform = [i / N for i in self.transform]
 
     def return_tabs(self):
         new_tabs = []
@@ -39,12 +46,12 @@ class SignalTransformationGenerator:
         time = []
         sample = process_time[0]
         for i, (x, y) in enumerate(
-                zip(process_time, process_signal)):  # Przejście przez wszystkie punkty z listy sygnału oryginalnego
-            while round(sample, 5) < round(x, 5):  # Jeśi punkt szukany jest mniejszy od x z listy oryginalnej dodaj punkty pośrednie
+                zip(process_time, process_signal)):
+            while round(sample, 5) < round(x, 5):
                 time.append(round(sample, 5))
-                signal.append(round(process_signal[i - 1], 5))  # Dodawanie y z poprzedniego x-a
-                sample += (1 / self.sampling_rate_transformation)  # Przesuń do kolejnego punktu szukanego na podstawie próbokowania
-            if round(sample, 5) == round(x, 5):  # Jeśli punkt szukany znajduje się na liście oryginalnej dodaj go
+                signal.append(round(process_signal[i - 1], 5))
+                sample += (1 / self.sampling_rate_transformation)
+            if round(sample, 5) == round(x, 5):
                 time.append(round(sample, 5))
                 signal.append(round(y, 5))
                 sample += (1 / self.sampling_rate_transformation)
@@ -55,8 +62,12 @@ class SignalTransformationGenerator:
 
         return signal, time
 
-
     def transform_f1(self):
+        self.transform_last_used = 'Szybka transformacja Fouriera FFT'
+        self.executing_time, self.transform = self.measure(self.fft, self.signal)
+        self.transform_last_used += f' (czas: {self.executing_time} ms)'
+
+    def transform_f1_dit(self):
         self.transform_last_used = 'Szybka transformacja Fouriera z decymacją w dziedzinie czasu DIT FFT'
         self.executing_time, self.transform = self.measure(self.dit_fft, self.signal)
         self.transform_last_used += f' (czas: {self.executing_time} ms)'
@@ -65,7 +76,6 @@ class SignalTransformationGenerator:
         self.transform_last_used = 'Transformacja kosinusowa typu drugiego DCT II'
         self.executing_time, self.transform = self.measure(self.dct_ii2, self.signal)
         self.transform_last_used += f' (czas: {self.executing_time} ms)'
-
 
     def measure(self, f, l):
         start_time = time.perf_counter()
@@ -98,8 +108,19 @@ class SignalTransformationGenerator:
             j += m
         return y
 
+    def fft(self, x):
+        N = len(x)
+
+        if N == 1:
+            return x
+        x_even = self.fft(x[::2])
+        x_odd = self.fft(x[1::2])
+        factor = np.exp(-2j * np.pi * np.arange(N) / N)
+
+        X = np.concatenate([x_even + factor[:N//2] * x_odd, x_even + factor[N//2:] * x_odd])
+        return X
+
     def dit_fft(self, x):
-        x = self.zero_padding(x)
         N = len(x)
         stages = int(np.log2(N))
         x = self.bit_reverse_copy(x)
@@ -117,55 +138,16 @@ class SignalTransformationGenerator:
                     x[k + j] = x[k + j] + t
                     W *= W_m
 
-        return x * 2 / len(x)
-
-    def hadamard_matrix(self, n):
-        if n == 1:
-            return np.array([[1]])
-        else:
-            H_n = self.hadamard_matrix(n // 2)
-            top = np.concatenate((H_n, H_n), axis=1)
-            bottom = np.concatenate((H_n, -H_n), axis=1)
-            H_2n = np.concatenate((top, bottom), axis=0)
-            return H_2n
-
-    def dct_ii2(self, x):
-        N = len(x)
-        X = np.zeros(N)
-        factor = np.pi / (2 * N)
-
-        for k in range(N):
-            sum_val = 0
-            for n in range(N):
-                sum_val += x[n] * np.cos((2 * n + 1) * k * factor)
-            if k == 0:
-                X[k] = sum_val * np.sqrt(1 / N)
-            else:
-                X[k] = sum_val * np.sqrt(2 / N)
-
-        return X.tolist()
-
-    def fft_decimation_in_time_helper(self, x):
-        N = len(x)
-
-        if N <= 1:
-            return x
-
-        even = self.fft_decimation_in_time_helper(x[0::2])
-        odd = self.fft_decimation_in_time_helper(x[1::2])
-
-        factor = np.exp(-2j * np.pi * np.arange(N) / N)
-        return np.concatenate([even + factor[:N // 2] * odd, even + factor[N // 2:] * odd]).tolist()
+        return x
 
     def dct_ii2(self, ys):
-        ys = self.zero_padding(ys)
         N = len(ys)
         transform = [complex(y) for y in ys]
-        X = [0] * N
+        X = np.zeros(N, dtype=complex)
 
         for m in range(N):
-            suma = 0
+            total_sum = 0
             for n in range(N):
-                suma += transform[n] * np.cos(np.pi * (2 * n + 1) * m / (2 * N))
-            X[m] = (np.sqrt(1 / N) if m == 0 else np.sqrt(2 / N)) * suma
+                total_sum += transform[n] * np.cos(np.pi * (2 * n + 1) * m / (2 * N))
+            X[m] = (np.sqrt(1 / N) if m == 0 else np.sqrt(2 / N)) * total_sum
         return X
