@@ -31,13 +31,13 @@ def create_generate_signals_widget(notebook_instance):
     params_val_dict = {
         'amplitude': tk.DoubleVar(value=1.0),
         'start_time': tk.DoubleVar(value=0.0),
-        'duration': tk.DoubleVar(value=5),
+        'duration': tk.DoubleVar(value=4),
         'period': tk.DoubleVar(value=1),
         'fill_factor': tk.DoubleVar(value=0.5),
         'probability': tk.DoubleVar(value=0.2),
         'jump_number': tk.IntVar(value=20),
         'time_shift': tk.DoubleVar(value=4.0),
-        'frequency': tk.IntVar(value=100),
+        'frequency': tk.IntVar(value=16),
         'sampling_rate_transformation': tk.IntVar(value=10),
         'hist_bins': tk.IntVar(value=10),
     }
@@ -52,7 +52,6 @@ def create_generate_signals_widget(notebook_instance):
         'jump_number': "Numer próbki skoku:",
         'time_shift': "Czas skoku:",
         'frequency': "Częstotliwość",
-        'sampling_rate_transformation': "Częstotliwość próbkowania do tranformacji:",
     }
 
     notebook_instance.create_label(signal_params_frame, "Typ sygnału:", row_number)

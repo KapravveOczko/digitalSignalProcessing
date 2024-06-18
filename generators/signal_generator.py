@@ -66,10 +66,7 @@ class SignalGenerator:
         start = self.parameters['start_time']
         end = self.parameters['start_time'] + self.parameters['duration']
 
-        self.time = np.linspace(start, end, int(self.f_multiplier * end), endpoint=False)
-
-
-        self.sampling_rate_transformation = self.parameters['sampling_rate_transformation']
+        self.time = np.linspace(start, end, int(self.f_multiplier * end))
 
         # if self.signal_type in ["S12", "S13", "S14"]:
         #     self.time = np.linspace(start, end, self.f_multiplier, endpoint=False)
@@ -176,7 +173,8 @@ class SignalGenerator:
         return 0.42 - 0.5 * np.cos(2.0 * np.pi * n / self.M) + 0.08 * np.cos(4.0 * np.pi * n / self.M)
 
     def calculate_s1(self, t):
-        return [2 * np.sin(np.pi * t + np.pi / 2) + 5 * np.sin(4 * np.pi * t + np.pi / 2) for t in t]
+        # return [2 * np.sin(np.pi * t + np.pi / 2) + 5 * np.sin(4 * np.pi * t + np.pi / 2) for t in t]
+        return 2 * np.sin((2 * np.pi / 2) * t + np.pi / 2) + 5 * np.sin((2 * np.pi / 0.5) * t + np.pi / 2)
 
     def calculate_s2(self, t):
         return [2 * np.sin(np.pi * t) + np.sin(2 * np.pi * t) + 5 * np.sin(4 * np.pi * t) for t in t]

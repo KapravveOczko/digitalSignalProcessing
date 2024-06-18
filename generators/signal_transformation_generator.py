@@ -6,11 +6,9 @@ import numpy as np
 class SignalTransformationGenerator:
     def __init__(self, container, operation, signal, visualizers):
         self.container = container
-        self.sampling_rate_transformation = signal.parameters['sampling_rate_transformation']
+        self.sampling_rate = signal.parameters['frequency']
         self.visualizers = visualizers
-
-        self.signal, self.time = self.calculate_signal(signal)
-
+        self.signal = signal.signal
         self.signal = self.zero_padding(self.signal)
 
         self.transform_last_used = ''
@@ -25,9 +23,10 @@ class SignalTransformationGenerator:
             self.transform_t1()
 
 
-        N = len(self.transform)
-        self.transform_x = [i / N * self.sampling_rate_transformation for i in range(len(self.transform))]
-        self.transform = [i / N for i in self.transform]
+        N = len(self.signal)
+        self.transform_x = np.linspace(0, self.sampling_rate, N, endpoint=False)
+        self.transform = self.transform / N
+
 
     def return_tabs(self):
         new_tabs = []
@@ -36,31 +35,6 @@ class SignalTransformationGenerator:
         new_tabs.append(self.visualizers(self.container, self.transform_x, self.transform, self.transform_last_used, False))
 
         return new_tabs
-
-    def calculate_signal(self, signal):
-
-        process_signal = signal.signal
-        process_time = signal.time
-
-        signal = []
-        time = []
-        sample = process_time[0]
-        for i, (x, y) in enumerate(
-                zip(process_time, process_signal)):
-            while round(sample, 5) < round(x, 5):
-                time.append(round(sample, 5))
-                signal.append(round(process_signal[i - 1], 5))
-                sample += (1 / self.sampling_rate_transformation)
-            if round(sample, 5) == round(x, 5):
-                time.append(round(sample, 5))
-                signal.append(round(y, 5))
-                sample += (1 / self.sampling_rate_transformation)
-
-        if process_time[-1] != process_signal[-1]:
-            time.append(process_time[-1])
-            signal.append(process_signal[-1])
-
-        return signal, time
 
     def transform_f1(self):
         self.transform_last_used = 'Szybka transformacja Fouriera FFT'

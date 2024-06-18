@@ -21,7 +21,6 @@ class SignalTransformation(ttk.Frame):
     def plot_signals(self):
         x, y = self.transform_x, self.transform
 
-
         if len(y) == 0:
             return
 
@@ -34,34 +33,46 @@ class SignalTransformation(ttk.Frame):
         module_phase = True
         line = True
 
-        if self.module_phase:
-            if self.line:
-                axes.plot(x, [i.real for i in y], c = 'blue')
-            axes.scatter(x, [i.real for i in y], c = 'red')
-        else:
-            if self.line:
-                axes.plot(x, [np.sqrt(i.real ** 2 + i.imag ** 2) for i in y], c='blue')
-            axes.scatter(x, [np.sqrt(i.real ** 2 + i.imag ** 2) for i in y], c='red')
-
-        axes.set_title(f'')
-        axes.set_xlabel("Częstotliwość")
-        axes.set_ylabel("Część rzeczywista" if self.module_phase else "Moduł")
-
-        axes2 = fig.add_subplot(212)
-        axes2.grid(True)
 
         if self.module_phase:
-            if self.line:
-                axes2.plot(x, [i.imag for i in y], c = 'blue')
-            axes2.scatter(x, [i.imag for i in y], c = 'red')
-        else:
-            if self.line:
-                axes2.plot(x, [cmath.phase(i) for i in y], c='blue')
-            axes2.scatter(x, [cmath.phase(i) for i in y], c='red')
+            real = np.real(self.transform)
+            imag = np.imag(self.transform)
 
-        axes2.set_title(f'')
-        axes2.set_xlabel("Częstotliwość")
-        axes2.set_ylabel("Część urojona" if self.module_phase else "Faza")
+            if self.line:
+                axes.plot(x, real , c = 'blue')
+            axes.scatter(x, real , c = 'red')
+            axes.set_title(f'')
+            axes.set_xlabel("Częstotliwość")
+            axes.set_ylabel("Część rzeczywista")
+            axes2 = fig.add_subplot(212)
+            axes2.grid(True)
+            if self.line:
+                axes2.plot(x, imag, c = 'blue')
+            axes2.scatter(x, imag, c = 'red')
+            axes2.set_title(f'')
+            axes2.set_xlabel("Częstotliwość")
+            axes2.set_ylabel("Część urojona")
+        else:
+
+            modules = np.abs(self.transform)
+            argument = np.angle(self.transform)
+
+            if self.line:
+                axes.plot(x, modules, c='blue')
+            axes.scatter(x, modules, c='red')
+            axes.set_title(f'')
+            axes.set_xlabel("Częstotliwość")
+            axes.set_ylabel("Moduł")
+            axes2 = fig.add_subplot(212)
+            axes2.grid(True)
+            if self.line:
+                axes2.plot(x, argument, c='blue')
+            axes2.scatter(x, argument, c='red')
+            axes2.set_title(f'')
+            axes2.set_xlabel("Częstotliwość")
+            axes2.set_ylabel("Faza")
+
+
 
         canvas = FigureCanvasTkAgg(fig, master=self)
         canvas_widget = canvas.get_tk_widget()
