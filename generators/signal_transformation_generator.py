@@ -28,6 +28,17 @@ class SignalTransformationGenerator:
         self.transform = self.transform / N
 
 
+        half_n = N // 2
+
+        half_transform = self.transform[half_n:][::-1]
+
+        for i in range(1, half_n):
+            self.transform[i] += half_transform[i-1]
+
+        self.transform = self.transform[:half_n]
+        self.transform_x = self.transform_x[:half_n]
+
+
     def return_tabs(self):
         new_tabs = []
 
